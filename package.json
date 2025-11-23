@@ -1,0 +1,20 @@
+{
+  "name": "homie-quiz",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "kathy <kathybguo@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "start:web": "yarn workspace web-app start",
+    "start:api": "yarn workspace api-server node src/index.js",
+    "dev": "concurrently \"yarn start:web\" \"yarn start:api\""
+  }
+}

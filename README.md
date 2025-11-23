@@ -1,0 +1,1 @@
+Monorepo Setup https://medium.com/@julakadaredrishi/monorepos-a-comprehensive-guide-with-examples-63202cfab711
