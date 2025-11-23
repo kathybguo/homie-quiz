@@ -9403,6 +9403,11 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
 
+"utils@workspace:*":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/utils/-/utils-0.0.1.tgz#dc0b9f59988138090e3e7fb0f15900c09ee5b256"
+  integrity sha512-Uk+2G1unkhYAsZp6/tlJb3sy3tldXQKaf1IbAb9F3DT/7PEWrk/eeM9mt6kbDR/qq8d+9bEF5Lqy+m2EmjQA1A==
+
 uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"

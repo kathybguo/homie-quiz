@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start:web": "yarn workspace web-app start",
-    "start:api": "yarn workspace api-server node src/index.js",
+    "start:api": "yarn workspace api-server nodemon src/index.js",
     "dev": "concurrently \"yarn start:web\" \"yarn start:api\""
   }
 }
