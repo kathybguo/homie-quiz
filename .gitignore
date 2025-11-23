@@ -1,3 +1,48 @@
+# Node.js dependencies
 node_modules/
-.next
-dist
+.pnp/
+.pnp.js
+
+# Build artifacts
+build/
+dist/
+out/
+es/
+lib/
+tmp/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# React specific
+# If you are using create-react-app, you might have some additional files to ignore
+# For example, create-react-app generates a 'build' folder, which is already covered above.
+# If you have custom build outputs or cache files, add them here.
+
+# Express specific
+# No additional common Express-specific files are usually needed beyond Node.js patterns.
+# If you have specific database files, upload directories, or other generated content,
+# add them here. For example:
+# /uploads/
+# *.sqlite
