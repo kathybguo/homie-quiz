@@ -1,27 +1,31 @@
 import { add } from "utils"; // import here
 import logo from "./logo.svg";
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 function App() {
-  const result = add(2, 3);
+  // const result = add(2, 3);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Addition of 2 and 3 is <h1> {result}</h1>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <h1>LANDING</h1>
+        <nav>
+          <button>
+            <Link to="/host">Host</Link>
+          </button>
+          <button>
+            <Link to="/join">Join</Link>
+          </button>
+        </nav>
+
+        <Routes>
+          <Route path="/" />
+          <Route path="/host" />
+          <Route path="/join" />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
