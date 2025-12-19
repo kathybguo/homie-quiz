@@ -1,27 +1,19 @@
-import { add } from "utils"; // import here
-import logo from "./logo.svg";
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./components/Landing/Landing";
+import Lobby from "./components/Lobby/Lobby";
 
 function App() {
-  const result = add(2, 3);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Addition of 2 and 3 is <h1> {result}</h1>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/join" />
+          <Route path="/:code" element={<Lobby />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

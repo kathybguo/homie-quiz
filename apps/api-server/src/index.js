@@ -1,20 +1,47 @@
+require("dotenv").config();
+
 const express = require("express");
-const { add } = require("utils"); // import here
 const app = express();
-const PORT = 2000;
+const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 
-app.get("/add", (req, res) => {
-  const { a, b } = req.query;
-  console.log(`api hit with ${a} and ${b}`);
-  res.json({ result: add(Number(a), Number(b)) });
+app.use(cors());
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://localhost:3000"],
+    methods: ["GET", "POST"],
+  },
 });
+const PORT = process.env.PORT || 2000;
 
-// Define a route for the root URL
 app.get("/", (req, res) => {
-  res.send("heyo your end point is up");
+  res.sendFile(__dirname + "/index.html");
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+io.on("connection", (socket) => {
+  console.log("a user connected");
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+
+  socket.on("chat message", (msg) => {
+    console.log("message: " + msg);
+  });
+
+  socket.on("create-session", () => {
+    const sessionCode = Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase();
+    console.log(`Session created with code: ${sessionCode}`);
+    socket.emit("session-created", sessionCode);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`server listening on *:${PORT}`);
 });
