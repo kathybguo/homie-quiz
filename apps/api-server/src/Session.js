@@ -4,7 +4,8 @@ import { prompts } from "./prompts.js";
 export class Session {
   constructor(code) {
     this.sessionCode = code;
-    this.players = {}; // key: player name, value: player score
+    this.playerScores = {}; // key: player name, value: player score
+    this.playerNames = {}; // key: socket id, value: player name
     this.state = "waiting"; // possible states: waiting, answering, labeling, reveal, scores, over
     this.round = 0;
     this.currentRound = null;
@@ -14,7 +15,9 @@ export class Session {
   }
 
   addPlayer(socketId, name) {
-    this.players.push({ id: socketId, name, score: 0 });
+    this.playerScores[name] = 0;
+    this.playerNames[socketId] = name;
+    console.log("Current players:", this.playerNames);
   }
 
   removePlayer(socketId) {
