@@ -1,6 +1,6 @@
 class Round {
-  constructor(question) {
-    this.question = question;
+  constructor(prompt) {
+    this.prompt = prompt;
     this.answers = [];
     this.guesses = [];
   }

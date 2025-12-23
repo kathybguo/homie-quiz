@@ -1,4 +1,4 @@
-export const prompts = [
+export const PROMPTS = [
   "What is your favorite color?",
   "What's your go-to comfort food?",
   "What was your dream job as a kid?",
@@ -17,6 +17,7 @@ export const prompts = [
   "How many countries have you been to?",
   "What is your favourite vegetable?",
   "How long can you go without leaving the house?",
+  "What will you bring to a potluck?"
 ];
 
 //   "Most recently liked Instagram post link",
