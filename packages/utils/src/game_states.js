@@ -1,0 +1,8 @@
+export const GAME_STATES = {
+  WAITING: 0,
+  PROMPTING: 1,
+  LABELING: 2,
+  REVEAL: 3,
+  SCORES: 4,
+  GAME_OVER: 5,
+};
