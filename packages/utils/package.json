@@ -1,5 +1,5 @@
 {
-  "name": "utils",
+  "name": "@hq/utils",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.js",
