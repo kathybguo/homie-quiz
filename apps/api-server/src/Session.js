@@ -1,15 +1,18 @@
 import { socket } from "../../web-app/src/socket.js";
-import { prompts } from "./prompts.js";
+import { Round } from "./Round.js";
+import { PROMPTS } from "./prompts.js";
+import { GAME_STATES } from "@hq/utils";
 
 export class Session {
-  constructor(code) {
+  constructor(code, hostSocketId) {
     this.sessionCode = code;
     this.playerScores = {}; // key: player name, value: player score
     this.playerNames = {}; // key: socket id, value: player name
-    this.state = "waiting"; // possible states: waiting, answering, labeling, reveal, scores, over
-    this.round = 0;
+    this.state = GAME_STATES.WAITING;
+    this.hostSocketId = hostSocketId;
+    this.round = 1;
     this.currentRound = null;
-    this.availablePrompts = [...prompts]; // Copy the array
+    this.availablePrompts = [...PROMPTS]; // Copy the array
     this.usedPrompts = [];
     this.rounds = [];
   }
@@ -29,24 +32,25 @@ export class Session {
   }
 
   start() {
-    this.state = "answering";
-    startNewRound();
+    this.state = GAME_STATES.PROMPTING;
+    this.startNewRound();
   }
 
   startNewRound() {
-    const question = this.getRandomPrompt();
-    this.currentRound = new Round(question);
-    socket.emit("new-round", {
-      roundData: this.currentRound,
-    });
+    // if not the first round, save the previous round data
+    if (this.currentRound) {
+      this.rounds.push(this.currentRound);
+    }
+    const prompt = this.getRandomPrompt();
+    this.currentRound = new Round(prompt);
   }
 
   completeRound() {
-    if (this.round == 10) {
-      this.state = "over";
+    if (this.round == 2) {
+      this.state = GAME_STATES.OVER;
     } else {
       this.round += 1;
-      this.state = "answering";
+      this.state = GAME_STATES.PROMPTING;
       this.startNewRound();
     }
   }
