@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { socket } from "../../socket";
 import { useEffect, useState } from "react";
-import { GAME_STATES } from "utils";
+import { GAME_STATES } from "@hq/utils";
 
 export default function Lobby() {
   const { code } = useParams();
@@ -13,9 +13,9 @@ export default function Lobby() {
     socket.on("player-joined", (updatedPlayers) => {
       setPlayers((currPlayers) => [...currPlayers, updatedPlayers.name]);
 
-      socket.on("prompt-phase", (prompt) => {
-        console.log("received new prompt:", prompt);
-        setPrompt(prompt);
+      socket.on("prompt-phase", (response) => {
+        console.log("received response:", response);
+        setPrompt(response.prompt);
         setGameState(GAME_STATES.PROMPTING);
       });
 

@@ -1,6 +1,6 @@
 import { Session } from "./Session.js";
 import { createRequire } from "module";
-import { GAME_STATES } from "utils";
+import { GAME_STATES } from "@hq/utils";
 const require = createRequire(import.meta.url);
 
 require("dotenv").config();

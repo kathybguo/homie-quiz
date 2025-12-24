@@ -1,4 +1,4 @@
-class Round {
+export class Round {
   constructor(prompt) {
     this.prompt = prompt;
     this.answers = [];

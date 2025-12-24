@@ -1,6 +1,7 @@
 import { socket } from "../../web-app/src/socket.js";
+import { Round } from "./Round.js";
 import { PROMPTS } from "./prompts.js";
-import { GAME_STATES } from "utils";
+import { GAME_STATES } from "@hq/utils";
 
 export class Session {
   constructor(code, hostSocketId) {
@@ -9,7 +10,7 @@ export class Session {
     this.playerNames = {}; // key: socket id, value: player name
     this.state = GAME_STATES.WAITING;
     this.hostSocketId = hostSocketId;
-    this.round = 0;
+    this.round = 1;
     this.currentRound = null;
     this.availablePrompts = [...PROMPTS]; // Copy the array
     this.usedPrompts = [];
@@ -32,7 +33,7 @@ export class Session {
 
   start() {
     this.state = GAME_STATES.PROMPTING;
-    startNewRound();
+    this.startNewRound();
   }
 
   startNewRound() {
