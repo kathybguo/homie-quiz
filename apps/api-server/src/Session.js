@@ -15,11 +15,13 @@ export class Session {
     this.availablePrompts = [...PROMPTS]; // Copy the array
     this.usedPrompts = [];
     this.rounds = [];
+    this.numPlayers = 0;
   }
 
   addPlayer(socketId, name) {
     this.playerScores[name] = 0;
     this.playerNames[socketId] = name;
+    this.numPlayers += 1;
     console.log("Current players:", this.playerNames);
   }
 
@@ -53,6 +55,16 @@ export class Session {
       this.state = GAME_STATES.PROMPTING;
       this.startNewRound();
     }
+  }
+
+  reset() {
+    this.playerScores = {}; // key: player name, value: player score
+    this.state = GAME_STATES.WAITING;
+    this.round = 1;
+    this.currentRound = null;
+    this.availablePrompts = [...PROMPTS]; // Copy the array
+    this.usedPrompts = [];
+    this.rounds = [];
   }
 
   getRandomPrompt() {

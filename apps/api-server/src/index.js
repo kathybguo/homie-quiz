@@ -64,48 +64,94 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("finished-prompting", ({ code }) => {
+  socket.on("submit-answer", ({ code, answer }) => {
     if (code in sessions) {
       const session = sessions[code];
-      session.state = GAME_STATES.LABELING;
-      io.to(code).emit("labeling-phase", {
-        roundAnswers: session.currentRound.answers,
-      });
-    }
-  });
-
-  socket.on("finished-labeling", ({ code }) => {
-    if (code in sessions) {
-      const session = sessions[code];
-      session.state = GAME_STATES.REVEAL;
-      io.to(code).emit("reveal-phase");
-    }
-  });
-
-  socket.on("finished-reveal", ({ code }) => {
-    if (code in sessions) {
-      const session = sessions[code];
-      session.state = GAME_STATES.SCORES;
-      io.to(code).emit("scores-phase");
-    }
-  });
-
-  socket.on("finished-scores", ({ code }) => {
-    if (code in sessions) {
-      const session = sessions[code];
-      session.completeRound();
-      if (session.state === GAME_STATES.OVER) {
-        io.to(code).emit("game-over");
-      } else {
-        io.to(code).emit("prompt-phase", {
-          prompt: session.currentRound.prompt,
-        });
+      const round = session.currentRound;
+      if (socket.id in round.answers) {
+        console.log("shoould be impossible case???");
+        return;
+      }
+      round.answers[socket.id] = {
+        playerName: session.playerNames[socket.id],
+        answer: answer,
+      };
+      console.log(round);
+      if (session.numPlayers == Object.keys(round.answers).length) {
+        // all players have submitted answers
+        session.state = GAME_STATES.LABELING;
+        io.to(code).emit("labeling-phase", { answers: round.answers });
       }
     }
   });
 
-  socket.on("end-game", ({ code }) => {
-    delete games[code];
+  socket.on("submit-labels", ({ code }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      const round = session.currentRound;
+      round.numGuesses += 1;
+      // figure out how to store labels
+      if (session.numPlayers == round.numGuesses) {
+        session.state = GAME_STATES.REVEAL;
+        io.to(code).emit("reveal-phase");
+      }
+    }
+
+    socket.on("finished-prompting", ({ code }) => {
+      if (code in sessions) {
+        const session = sessions[code];
+        session.state = GAME_STATES.LABELING;
+        io.to(code).emit("labeling-phase", {
+          roundAnswers: session.currentRound.answers,
+        });
+      }
+    });
+
+    socket.on("finished-labeling", ({ code }) => {
+      if (code in sessions) {
+        const session = sessions[code];
+        session.state = GAME_STATES.REVEAL;
+        io.to(code).emit("reveal-phase");
+      }
+    });
+
+    socket.on("finished-reveal", ({ code }) => {
+      if (code in sessions) {
+        const session = sessions[code];
+        session.state = GAME_STATES.SCORES;
+        io.to(code).emit("scores-phase");
+        console.log("emitted scores-phase");
+      }
+      console.log("finished-reveal seesion not found for code:", code);
+    });
+
+    socket.on("finished-scores", ({ code }) => {
+      if (code in sessions) {
+        const session = sessions[code];
+        session.completeRound();
+        if (session.state === GAME_STATES.OVER) {
+          io.to(code).emit("game-over");
+        } else {
+          io.to(code).emit("prompt-phase", {
+            prompt: session.currentRound.prompt,
+          });
+        }
+      }
+    });
+
+    socket.on("end-game", ({ code }) => {
+      delete games[code];
+    });
+  });
+
+  socket.on("play-again", ({ code }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      session.reset();
+    } else {
+      socket.emit("play-again-failure", { message: "Session not found" });
+      console.log("session not found for play again, should be impossible");
+    }
   });
 });
 

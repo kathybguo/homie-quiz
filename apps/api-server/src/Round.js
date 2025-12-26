@@ -1,8 +1,9 @@
 export class Round {
   constructor(prompt) {
     this.prompt = prompt;
-    this.answers = [];
-    this.guesses = [];
+    this.answers = {}; // key: player socket id, value: object with playerName and answer
+    this.guesses = {}; // key: player socket id of answer, value: array of { player socket id of guesser }
+    this.numGuesses = 0;
   }
 
   calculateScores() {
