@@ -9,7 +9,7 @@ export const PROMPTS = [
   "If you could have any superpower, what would it be?",
   "What's your favorite book or author?",
   "how many basketball players can you name?",
-  "What language do yo uwant to learn?",
+  "What language do you want to learn?",
   "What is the most uncommon food you have ever eaten?",
   "Describe how you would want your funeral to be",
   "What is a must play song at a party?",

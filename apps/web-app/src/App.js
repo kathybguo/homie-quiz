@@ -1,9 +1,9 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./components/Landing/Landing";
-import Lobby from "./components/Lobby/Lobby";
+import Host from "./components/Host/Host";
 import Join from "./components/Join/Join";
-import GamePage from "./components/GamePage/GamePage";
+import Player from "./components/Player/Player";
 
 function App() {
   return (
@@ -12,8 +12,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/join" element={<Join />} />
-          <Route path="/:code" element={<Lobby />} />
-          <Route path="/:code/:name" element={<GamePage />} />
+          <Route path="/:code" element={<Host />} />
+          <Route path="/:code/:name" element={<Player />} />
         </Routes>
       </div>
     </Router>

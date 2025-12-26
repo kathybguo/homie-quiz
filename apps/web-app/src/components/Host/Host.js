@@ -3,7 +3,7 @@ import { socket } from "../../socket";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
 
-export default function Lobby() {
+export default function Host() {
   const { code } = useParams();
   const [players, setPlayers] = useState([]);
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
@@ -53,11 +53,8 @@ export default function Lobby() {
     socket.emit("finished-prompting", { code: code });
   };
 
-  const finishedLabeling = () => {
-    socket.emit("finished-labeling", { code: code });
-  };
-
   const finishedReveal = () => {
+    console.log("finished reveal submitted");
     socket.emit("finished-reveal", { code: code });
   };
 
@@ -101,7 +98,6 @@ export default function Lobby() {
     return (
       <div>
         <h1>Labeling Phase</h1>
-        <button onClick={finishedLabeling}>Done</button>
       </div>
     );
   }
@@ -128,6 +124,13 @@ export default function Lobby() {
     return (
       <div>
         <h1>Game Over</h1>
+        <button
+          onClick={() => {
+            socket.emit("play-again", { code: code });
+          }}
+        >
+          play again?
+        </button>
       </div>
     );
   }

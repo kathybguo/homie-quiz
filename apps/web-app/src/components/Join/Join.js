@@ -31,13 +31,16 @@ export default function Join() {
     // passed the checks so clear the errors
     setErrors({});
     console.log("Valid! Submitting:", {
-      sessionCode: sessionCode,
+      sessionCode: sessionCode.toUpperCase(),
       name: name,
     });
 
     // do a check that the name and session code are not just empty strings
     console.log("Joining session...", sessionCode, name);
-    socket.emit("join-session", { code: sessionCode, name: name });
+    socket.emit("join-session", {
+      code: sessionCode.toUpperCase(),
+      name: name,
+    });
     socket.once("join-success", ({ code }) => {
       navigate(`/${code}/${name}`);
     });
