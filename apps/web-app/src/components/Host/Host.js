@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { socket } from "../../socket";
+import { socket } from "../../socket.js";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
 
