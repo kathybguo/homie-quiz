@@ -10,6 +10,7 @@ export default function Player() {
   const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: object with playerName and answer
   const [unusedLabels, setUnusedLabels] = useState([]); // player name labels the player can still use
   const [labelAssignments, setLabelAssignments] = useState({}); // key: answer's acutal author's socketId, value: guessed author's socketId
+  const [selectedAnswer, setSelectedAnswer] = useState(null); // socketId of currently selected answer
   const [error, setError] = useState("");
   const currentSocketId = socket.id;
 
@@ -20,10 +21,17 @@ export default function Player() {
     });
 
     socket.on("labeling-phase", (response) => {
-      setAllAnswers(response.answers);
+      // filter out own answer
+      const filteredAnswers = Object.fromEntries(
+        Object.entries(response.answers).filter(
+          ([socketId, obj]) => socketId !== currentSocketId
+        )
+      );
+
+      setAllAnswers(filteredAnswers);
       setUnusedLabels(
-        Object.values(response.answers).map((obj) => obj.playerName)
-      ); // extract player names from allAnswers
+        Object.values(filteredAnswers).map((obj) => obj.playerName)
+      );
       setGameState(GAME_STATES.LABELING);
     });
 
@@ -59,6 +67,10 @@ export default function Player() {
     setError("");
   };
 
+  const handleAnswerClick = (socketId) => {
+    setSelectedAnswer(socketId);
+  };
+  
   const handleLabel = (e) => {
     // remove label from unusedLabels
     const label = e.target.innerText;
@@ -131,7 +143,6 @@ export default function Player() {
       <div>
         <h1>Reveal Phase</h1>
         {/* show all answers next to authors and labelers below */}
-
       </div>
     );
   } else if (gameState === GAME_STATES.SCORES) {
