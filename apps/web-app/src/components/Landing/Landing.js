@@ -1,5 +1,5 @@
 import React from "react";
-import { socket } from "../../socket";
+import { socket } from "../../socket.js";
 import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
