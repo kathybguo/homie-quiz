@@ -2,17 +2,16 @@ import { useParams } from "react-router-dom";
 import { socket } from "../../socket.js";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
+import LabelPhase from "./Label/LabelPhase.js";
+import PromptPhase from "./Prompt/PromptPhase.js";
 
 export default function Player() {
   const { code } = useParams();
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [answer, setAnswer] = useState("");
-  const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: object with playerName and answer
-  const [unusedLabels, setUnusedLabels] = useState([]); // player name labels the player can still use
-  const [labelAssignments, setLabelAssignments] = useState({}); // key: answer's acutal author's socketId, value: guessed author's socketId
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // socketId of currently selected answer
+  const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: answer
+  const [playerNames, setPlayerNames] = useState({}); // key: socketId value: player name
   const [error, setError] = useState("");
-  const currentSocketId = socket.id;
 
   useEffect(() => {
     socket.on("prompt-phase", (response) => {
@@ -24,14 +23,20 @@ export default function Player() {
       // filter out own answer
       const filteredAnswers = Object.fromEntries(
         Object.entries(response.answers).filter(
-          ([socketId, obj]) => socketId !== currentSocketId
+          ([key, value]) => key !== socket.id
+        )
+      );
+      console.log("all", response.answers);
+      console.log(filteredAnswers);
+
+      const filteredNames = Object.fromEntries(
+        Object.entries(response.playerNames).filter(
+          ([key, vavlue]) => key !== socket.id
         )
       );
 
       setAllAnswers(filteredAnswers);
-      setUnusedLabels(
-        Object.values(filteredAnswers).map((obj) => obj.playerName)
-      );
+      setPlayerNames(filteredNames);
       setGameState(GAME_STATES.LABELING);
     });
 
@@ -56,87 +61,22 @@ export default function Player() {
     };
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (answer.trim() === "") {
-      setError("Answer cannot be empty");
-      return;
-    }
-    socket.emit("submit-answer", { code: code, answer: answer });
-    setGameState(GAME_STATES.WAITING);
-    setError("");
-  };
-
-  const handleAnswerClick = (socketId) => {
-    setSelectedAnswer(socketId);
-  };
-  
-  const handleLabel = (e) => {
-    // remove label from unusedLabels
-    const label = e.target.innerText;
-    setUnusedLabels(unusedLabels.filter((l) => l !== label));
-    // store this label somewhere and render the answer as labeled
-  };
-
-  const handleLabelSubmit = (e) => {
-    e.preventDefault();
-    // check that all answers have been labeled
-    // if (unusedLabels.length > 0) {
-    //   setError("Please label all answers before submitting");
-    //   return;
-    // }
-    socket.emit("submit-labels", { code: code });
-    // setError("");
+  const handleSubmitComplete = () => {
     setGameState(GAME_STATES.WAITING);
   };
 
   if (gameState === GAME_STATES.PROMPTING) {
     return (
-      <div>
-        Player Prompting Phase
-        <form onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="text"
-              placeholder="answer..."
-              onChange={(e) => setAnswer(e.target.value)}
-            />
-            {error && <span className="error">{error}</span>}
-            <button type="submit">Submit</button>
-          </div>
-        </form>
-      </div>
+      <PromptPhase sessionCode={code} onSubmitComplete={handleSubmitComplete} />
     );
   } else if (gameState === GAME_STATES.LABELING) {
     return (
-      <div>
-        {/*
-        render all the answers to label as buttons 
-        so in label state need
-        to have server emit all the answers
-        once selected, show more buttons underneath to guess the author
-        only allow one selection per answer
-        submit button only enabled once all answers have been labeled 
-        */}
-        <h1>Label the Answers</h1>
-        {Object.entries(allAnswers).map(([socketId, answerObj]) => (
-          <div key={socketId}>
-            <button>
-              <h3>{answerObj.answer}</h3>
-            </button>
-          </div>
-        ))}
-
-        {unusedLabels.map((label, index) => (
-          <button key={index} onClick={handleLabel}>
-            {label}
-          </button>
-        ))}
-        <form onSubmit={handleLabelSubmit}>
-          {error && <span className="error">{error}</span>}
-          <button type="submit">Submit Labels</button>
-        </form>
-      </div>
+      <LabelPhase
+        allAnswers={allAnswers}
+        sessionCode={code}
+        playerNames={Object.values(playerNames)}
+        onSubmitComplete={handleSubmitComplete}
+      ></LabelPhase>
     );
   } else if (gameState === GAME_STATES.REVEAL) {
     return (
