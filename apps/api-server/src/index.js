@@ -72,26 +72,30 @@ io.on("connection", (socket) => {
         console.log("shoould be impossible case???");
         return;
       }
-      round.answers[socket.id] = {
-        playerName: session.playerNames[socket.id],
-        answer: answer,
-      };
-      console.log(round);
+      round.answers[socket.id] = answer;
+      io.to(session.hostSocketId).emit("responses-received", {
+        num: Object.keys(round.answers).length,
+      });
       if (session.numPlayers == Object.keys(round.answers).length) {
         // all players have submitted answers
         session.state = GAME_STATES.LABELING;
-        io.to(code).emit("labeling-phase", { answers: round.answers });
+        io.to(code).emit("labeling-phase", {
+          answers: round.answers,
+          playerNames: session.playerNames,
+        });
       }
     }
   });
 
-  socket.on("submit-labels", ({ code }) => {
+  socket.on("submit-labels", ({ code, assignments }) => {
     if (code in sessions) {
       const session = sessions[code];
       const round = session.currentRound;
-      round.numGuesses += 1;
-      // figure out how to store labels
-      if (session.numPlayers == round.numGuesses) {
+      round.labels[socket.id] = assignments;
+      io.to(session.hostSocketId).emit("responses-received", {
+        num: Object.keys(round.labels).length,
+      });
+      if (session.numPlayers == Object.keys(round.labels).length) {
         session.state = GAME_STATES.REVEAL;
         io.to(code).emit("reveal-phase");
       }

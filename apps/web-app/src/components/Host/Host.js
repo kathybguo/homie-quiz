@@ -8,6 +8,8 @@ export default function Host() {
   const [players, setPlayers] = useState([]);
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [prompt, setPrompt] = useState("");
+  const [responsesReceived, setResponsesReceived] = useState(0);
+  const [allAnswers, setAllAnswers] = useState([]); // prompt answers
 
   useEffect(() => {
     socket.on("player-joined", (updatedPlayers) => {
@@ -19,8 +21,10 @@ export default function Host() {
         setGameState(GAME_STATES.PROMPTING);
       });
 
-      socket.on("labeling-phase", () => {
+      socket.on("labeling-phase", (response) => {
         setGameState(GAME_STATES.LABELING);
+        setResponsesReceived(0);
+        setAllAnswers(Object.values(response.answers));
       });
 
       socket.on("reveal-phase", () => {
@@ -34,6 +38,10 @@ export default function Host() {
       socket.on("game-over", () => {
         setGameState(GAME_STATES.GAME_OVER);
       });
+
+      socket.on("responses-received", (response) => {
+        setResponsesReceived(response.num);
+      });
     });
     return () => {
       socket.off("player-joined");
@@ -42,6 +50,7 @@ export default function Host() {
       socket.off("reveal-phase");
       socket.off("scores-phase");
       socket.off("game-over");
+      socket.off("responses-received");
     };
   }, []);
 
@@ -90,6 +99,9 @@ export default function Host() {
       <div>
         <h1>{prompt}</h1>
         <button onClick={finishedPrompting}>Done</button>
+        <h3>
+          {responsesReceived}/{players.length} responses
+        </h3>
       </div>
     );
   }
@@ -98,6 +110,14 @@ export default function Host() {
     return (
       <div>
         <h1>Labeling Phase</h1>
+        {allAnswers.map((answer) => (
+          <div>
+            <p>{answer}</p>
+          </div>
+        ))}
+        <h3>
+          {responsesReceived}/{players.length} responses
+        </h3>
       </div>
     );
   }
