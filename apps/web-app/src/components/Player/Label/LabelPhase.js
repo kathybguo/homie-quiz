@@ -9,20 +9,26 @@ export default function LabelingPhase({
   sessionCode,
   onSubmitComplete,
 }) {
-  const currentSocketId = socket.id;
+  // Filter out current user's data
+  const filteredAnswers = Object.fromEntries(
+    Object.entries(allAnswers).filter(([socketId]) => socketId !== socket.id),
+  );
+  const filteredNames = Object.fromEntries(
+    Object.entries(playerNames).filter(([key, vavlue]) => key !== socket.id),
+  );
 
   // State managed here
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [labelAssignments, setLabelAssignments] = useState({});
   // labelAssignments = { answerSocketId: guessedPlayerSocketId }
 
-  const answerIds = Object.keys(allAnswers);
+  const answerIds = Object.keys(filteredAnswers);
   const currentAnswerId = answerIds[currentCardIndex];
 
   // Derive which labels are used
   const usedPlayerIds = new Set(Object.values(labelAssignments));
-  const availablePlayerIds = Object.keys(playerNames).filter(
-    (id) => id !== currentSocketId && !usedPlayerIds.has(id)
+  const availablePlayerIds = Object.keys(filteredNames).filter(
+    (id) => !usedPlayerIds.has(id),
   );
 
   // Handler for carousel navigation
@@ -32,7 +38,7 @@ export default function LabelingPhase({
 
   const handlePrevious = () => {
     setCurrentCardIndex(
-      (currentCardIndex - 1 + answerIds.length) % answerIds.length
+      (currentCardIndex - 1 + answerIds.length) % answerIds.length,
     );
   };
 
@@ -69,7 +75,7 @@ export default function LabelingPhase({
       <h1>Who wrote this?</h1>
 
       <AnswerCarousel
-        currentAnswer={allAnswers[currentAnswerId]}
+        currentAnswer={filteredAnswers[currentAnswerId]}
         currentIndex={currentCardIndex}
         totalAnswers={answerIds.length}
         onNext={handleNext}
@@ -77,11 +83,10 @@ export default function LabelingPhase({
       />
 
       <PlayerSelector
-        playerNames={playerNames}
+        playerNames={filteredNames}
         availablePlayerIds={availablePlayerIds}
         selectedPlayerId={labelAssignments[currentAnswerId]}
         onTogglePlayer={handleTogglePlayer}
-        currentSocketId={currentSocketId}
       />
 
       <div>
