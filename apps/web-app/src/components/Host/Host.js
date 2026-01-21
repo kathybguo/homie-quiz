@@ -2,47 +2,55 @@ import { useParams } from "react-router-dom";
 import { socket } from "../../socket.js";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
+import RevealPhase from "./Reveal/RevealPhase.js";
+import ScoresPhase from "./Scores/ScoresPhase.js";
 
 export default function Host() {
   const { code } = useParams();
-  const [players, setPlayers] = useState([]);
+  const [playerNames, setPlayerNames] = useState({});
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [prompt, setPrompt] = useState("");
   const [responsesReceived, setResponsesReceived] = useState(0);
-  const [allAnswers, setAllAnswers] = useState([]); // prompt answers
+  const [allAnswers, setAllAnswers] = useState({}); // prompt answers
+  const [allLabels, setAllLabels] = useState({});
+  const [playerScores, setPlayerScores] = useState({});
 
   useEffect(() => {
-    socket.on("player-joined", (updatedPlayers) => {
-      setPlayers((currPlayers) => [...currPlayers, updatedPlayers.name]);
-
-      socket.on("prompt-phase", (response) => {
-        console.log("received response:", response);
-        setPrompt(response.prompt);
-        setGameState(GAME_STATES.PROMPTING);
-      });
-
-      socket.on("labeling-phase", (response) => {
-        setGameState(GAME_STATES.LABELING);
-        setResponsesReceived(0);
-        setAllAnswers(Object.values(response.answers));
-      });
-
-      socket.on("reveal-phase", () => {
-        setGameState(GAME_STATES.REVEAL);
-      });
-
-      socket.on("scores-phase", () => {
-        setGameState(GAME_STATES.SCORES);
-      });
-
-      socket.on("game-over", () => {
-        setGameState(GAME_STATES.GAME_OVER);
-      });
-
-      socket.on("responses-received", (response) => {
-        setResponsesReceived(response.num);
-      });
+    socket.on("player-joined", (response) => {
+      setPlayerNames(response.players);
     });
+
+    socket.on("prompt-phase", (response) => {
+      console.log("received response:", response);
+      setPrompt(response.prompt);
+      setGameState(GAME_STATES.PROMPTING);
+    });
+
+    socket.on("labeling-phase", (response) => {
+      setGameState(GAME_STATES.LABELING);
+      setResponsesReceived(0);
+      setAllAnswers(response.answers);
+    });
+
+    socket.on("reveal-phase", (response) => {
+      setGameState(GAME_STATES.REVEAL);
+      setResponsesReceived(0);
+      setAllLabels(response.guessedLabels);
+    });
+
+    socket.on("scores-phase", (response) => {
+      setGameState(GAME_STATES.SCORES);
+      setPlayerScores(response.playerScores);
+    });
+
+    socket.on("game-over", () => {
+      setGameState(GAME_STATES.GAME_OVER);
+    });
+
+    socket.on("responses-received", (response) => {
+      setResponsesReceived(response.num);
+    });
+
     return () => {
       socket.off("player-joined");
       socket.off("prompt-phase");
@@ -58,18 +66,15 @@ export default function Host() {
     socket.emit("start-game", { code: code });
   };
 
-  const finishedPrompting = () => {
-    socket.emit("finished-prompting", { code: code });
-  };
-
   const finishedReveal = () => {
-    console.log("finished reveal submitted");
     socket.emit("finished-reveal", { code: code });
   };
 
   const finishedScores = () => {
     socket.emit("finished-scores", { code: code });
   };
+
+  const numPlayers = Object.keys(playerNames).length;
 
   if (gameState === GAME_STATES.WAITING) {
     return (
@@ -78,18 +83,18 @@ export default function Host() {
         <h2>Join at www.friendquiz.com</h2>
         <h2>Session Code: {code}</h2>
 
-        {players.length > 0 ? (
+        {numPlayers > 0 ? (
           <h2>Players:</h2>
         ) : (
           <p>waiting for players to join...</p>
         )}
         <ul>
-          {players.map((player, index) => (
-            <li key={index}>{player}</li>
+          {Object.values(playerNames).map((playerName, index) => (
+            <li key={index}>{playerName}</li>
           ))}
         </ul>
 
-        {players.length >= 1 && <button onClick={startGame}>Start Game</button>}
+        {numPlayers >= 1 && <button onClick={startGame}>Start Game</button>}
       </div>
     );
   }
@@ -98,9 +103,8 @@ export default function Host() {
     return (
       <div>
         <h1>{prompt}</h1>
-        <button onClick={finishedPrompting}>Done</button>
         <h3>
-          {responsesReceived}/{players.length} responses
+          {responsesReceived}/{numPlayers} responses
         </h3>
       </div>
     );
@@ -110,13 +114,13 @@ export default function Host() {
     return (
       <div>
         <h1>Labeling Phase</h1>
-        {allAnswers.map((answer) => (
-          <div>
+        {Object.values(allAnswers).map((answer, index) => (
+          <div key={index}>
             <p>{answer}</p>
           </div>
         ))}
         <h3>
-          {responsesReceived}/{players.length} responses
+          {responsesReceived}/{numPlayers} responses
         </h3>
       </div>
     );
@@ -124,19 +128,22 @@ export default function Host() {
 
   if (gameState === GAME_STATES.REVEAL) {
     return (
-      <div>
-        <h1>Reveal Phase</h1>
-        <button onClick={finishedReveal}>Done</button>
-      </div>
+      <RevealPhase
+        allAnswers={allAnswers}
+        allLabels={allLabels}
+        playerNames={playerNames}
+        onComplete={finishedReveal}
+      />
     );
   }
 
   if (gameState === GAME_STATES.SCORES) {
     return (
-      <div>
-        <h1>Scores Phase</h1>
-        <button onClick={finishedScores}>Done</button>
-      </div>
+      <ScoresPhase
+        playerScores={playerScores}
+        playerNames={playerNames}
+        onComplete={finishedScores}
+      ></ScoresPhase>
     );
   }
 

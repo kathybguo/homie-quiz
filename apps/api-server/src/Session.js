@@ -22,7 +22,6 @@ export class Session {
     this.playerScores[name] = 0;
     this.playerNames[socketId] = name;
     this.numPlayers += 1;
-    console.log("Current players:", this.playerNames);
   }
 
   removePlayer(socketId) {
@@ -45,6 +44,15 @@ export class Session {
     }
     const prompt = this.getRandomPrompt();
     this.currentRound = new Round(prompt);
+  }
+
+  updateScoresFromRound() {
+    const roundScores = this.currentRound.calculateScores();
+    for (const [socketId, points] of Object.entries(roundScores)) {
+      const playerName = this.playerNames[socketId];
+      this.playerScores[playerName] += points;
+    }
+    return roundScores;
   }
 
   completeRound() {

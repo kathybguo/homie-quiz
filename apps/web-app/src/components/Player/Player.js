@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
 import LabelPhase from "./Label/LabelPhase.js";
 import PromptPhase from "./Prompt/PromptPhase.js";
+import RevealPhase from "./Reveal/RevealPhase.js";
 
 export default function Player() {
   const { code } = useParams();
@@ -11,7 +12,7 @@ export default function Player() {
   const [answer, setAnswer] = useState("");
   const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: answer
   const [playerNames, setPlayerNames] = useState({}); // key: socketId value: player name
-  const [error, setError] = useState("");
+  const [allLabels, setAllLabels] = useState({});
 
   useEffect(() => {
     socket.on("prompt-phase", (response) => {
@@ -20,28 +21,14 @@ export default function Player() {
     });
 
     socket.on("labeling-phase", (response) => {
-      // filter out own answer
-      const filteredAnswers = Object.fromEntries(
-        Object.entries(response.answers).filter(
-          ([key, value]) => key !== socket.id
-        )
-      );
-      console.log("all", response.answers);
-      console.log(filteredAnswers);
-
-      const filteredNames = Object.fromEntries(
-        Object.entries(response.playerNames).filter(
-          ([key, vavlue]) => key !== socket.id
-        )
-      );
-
-      setAllAnswers(filteredAnswers);
-      setPlayerNames(filteredNames);
+      setAllAnswers(response.answers);
+      setPlayerNames(response.playerNames);
       setGameState(GAME_STATES.LABELING);
     });
 
-    socket.on("reveal-phase", () => {
+    socket.on("reveal-phase", (response) => {
       setGameState(GAME_STATES.REVEAL);
+      setAllLabels(response.guessedLabels);
     });
 
     socket.on("scores-phase", () => {
@@ -74,16 +61,17 @@ export default function Player() {
       <LabelPhase
         allAnswers={allAnswers}
         sessionCode={code}
-        playerNames={Object.values(playerNames)}
+        playerNames={playerNames}
         onSubmitComplete={handleSubmitComplete}
       ></LabelPhase>
     );
   } else if (gameState === GAME_STATES.REVEAL) {
     return (
-      <div>
-        <h1>Reveal Phase</h1>
-        {/* show all answers next to authors and labelers below */}
-      </div>
+      <RevealPhase
+        allAnswers={allAnswers}
+        allLabels={allLabels}
+        playerNames={playerNames}
+      ></RevealPhase>
     );
   } else if (gameState === GAME_STATES.SCORES) {
     return (

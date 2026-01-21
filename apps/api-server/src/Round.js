@@ -7,30 +7,16 @@ export class Round {
   }
 
   calculateScores() {
-    // Build map of correct answers
-    const answerMap = {};
-    this.answers.forEach((a) => {
-      answerMap[a.answer] = a.playerId;
-    });
-
-    // Score each player's guesses
     const scores = {};
-    this.guesses.forEach((guess) => {
+    for (const [playerId, theirGuesses] of Object.entries(this.labels)) {
       let correctCount = 0;
-      guess.guesses.forEach((g) => {
-        if (answerMap[g.answer] === g.guessedPlayerId) {
+      for (const [authorId, guessedAuthorId] of Object.entries(theirGuesses)) {
+        if (authorId === guessedAuthorId) {
           correctCount++;
         }
-      });
-      scores[guess.guesserId] = correctCount * 10; // 10 points per correct
-    });
-
+      }
+      scores[playerId] = correctCount * 100;
+    }
     return scores;
-  }
-
-  isComplete() {
-    return (
-      this.answers.length > 0 && this.guesses.length === this.answers.length
-    );
   }
 }

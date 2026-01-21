@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
       session.addPlayer(socket.id, name);
       socket.join(code); // Join the socket.io room for this session
       socket.emit("join-success", { code });
-      io.to(code).emit("player-joined", { name, players: session.playerNames });
+      io.to(code).emit("player-joined", { players: session.playerNames });
     } else {
       socket.emit("join-failure", { message: "Session not found" });
     }
@@ -61,6 +61,7 @@ io.on("connection", (socket) => {
       io.to(code).emit("prompt-phase", { prompt: session.currentRound.prompt });
     } else {
       socket.emit("start-failure", { message: "Session not found" });
+      console.log(`urm FAKE CODE ALERT wtf is ${code}`);
     }
   });
 
@@ -96,56 +97,72 @@ io.on("connection", (socket) => {
         num: Object.keys(round.labels).length,
       });
       if (session.numPlayers == Object.keys(round.labels).length) {
+        // Generate fake guesses for actual authors
+        for (const answerAuthorId of Object.keys(round.answers)) {
+          const otherPlayerIds = Object.keys(session.playerNames).filter(
+            (id) => id !== answerAuthorId,
+          );
+          const randomPlayerId =
+            otherPlayerIds[Math.floor(Math.random() * otherPlayerIds.length)];
+          round.labels[answerAuthorId][answerAuthorId] = randomPlayerId;
+        }
         session.state = GAME_STATES.REVEAL;
-        io.to(code).emit("reveal-phase");
-      }
-    }
-
-    socket.on("finished-prompting", ({ code }) => {
-      if (code in sessions) {
-        const session = sessions[code];
-        session.state = GAME_STATES.LABELING;
-        io.to(code).emit("labeling-phase", {
-          roundAnswers: session.currentRound.answers,
+        io.to(code).emit("reveal-phase", {
+          guessedLabels: round.labels,
         });
       }
-    });
+    }
+  });
+  socket.on("finished-prompting", ({ code }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      session.state = GAME_STATES.LABELING;
+      io.to(code).emit("labeling-phase", {
+        roundAnswers: session.currentRound.answers,
+      });
+    }
+  });
 
-    socket.on("finished-labeling", ({ code }) => {
-      if (code in sessions) {
-        const session = sessions[code];
-        session.state = GAME_STATES.REVEAL;
-        io.to(code).emit("reveal-phase");
+  socket.on("finished-labeling", ({ code }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      session.state = GAME_STATES.REVEAL;
+      io.to(code).emit("reveal-phase");
+    }
+  });
+
+  socket.on("finished-reveal", ({ code }) => {
+    console.log(`going to scores for game ${code}`);
+    if (code in sessions) {
+      const session = sessions[code];
+      session.state = GAME_STATES.SCORES;
+      session.updateScoresFromRound();
+      console.log("calculated scores");
+      io.to(code).emit("scores-phase", {
+        playerScores: session.playerScores,
+      });
+      console.log("emitted scores-phase");
+    } else {
+      console.log("finished-reveal session not found for code:", code);
+    }
+  });
+
+  socket.on("finished-scores", ({ code }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      session.completeRound();
+      if (session.state === GAME_STATES.OVER) {
+        io.to(code).emit("game-over");
+      } else {
+        io.to(code).emit("prompt-phase", {
+          prompt: session.currentRound.prompt,
+        });
       }
-    });
+    }
+  });
 
-    socket.on("finished-reveal", ({ code }) => {
-      if (code in sessions) {
-        const session = sessions[code];
-        session.state = GAME_STATES.SCORES;
-        io.to(code).emit("scores-phase");
-        console.log("emitted scores-phase");
-      }
-      console.log("finished-reveal seesion not found for code:", code);
-    });
-
-    socket.on("finished-scores", ({ code }) => {
-      if (code in sessions) {
-        const session = sessions[code];
-        session.completeRound();
-        if (session.state === GAME_STATES.OVER) {
-          io.to(code).emit("game-over");
-        } else {
-          io.to(code).emit("prompt-phase", {
-            prompt: session.currentRound.prompt,
-          });
-        }
-      }
-    });
-
-    socket.on("end-game", ({ code }) => {
-      delete games[code];
-    });
+  socket.on("end-game", ({ code }) => {
+    delete games[code];
   });
 
   socket.on("play-again", ({ code }) => {
@@ -156,6 +173,10 @@ io.on("connection", (socket) => {
       socket.emit("play-again-failure", { message: "Session not found" });
       console.log("session not found for play again, should be impossible");
     }
+  });
+
+  socket.on("testing", () => {
+    console.log("hailoooooo test worked!! you've reached our server");
   });
 });
 
