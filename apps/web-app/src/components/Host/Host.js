@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../../socket.js";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
@@ -14,8 +14,16 @@ export default function Host() {
   const [allAnswers, setAllAnswers] = useState({}); // prompt answers
   const [allLabels, setAllLabels] = useState({});
   const [playerScores, setPlayerScores] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+      // Optionally show an alert or message
+      alert("Connection to server lost. Returning to home page.");
+      navigate("/");
+    });
+
     socket.on("player-joined", (response) => {
       setPlayerNames(response.players);
     });
@@ -52,6 +60,7 @@ export default function Host() {
     });
 
     return () => {
+      socket.off("disconnect");
       socket.off("player-joined");
       socket.off("prompt-phase");
       socket.off("labeling-phase");

@@ -40,17 +40,65 @@ io.on("connection", (socket) => {
     sessions[sessionCode] = new Session(sessionCode, socket.id);
     socket.join(sessionCode);
     socket.emit("session-created", sessionCode);
+    console.log(`+ created game ${sessionCode}`);
   });
 
   socket.on("join-session", ({ code, name }) => {
     if (code in sessions) {
       const session = sessions[code];
+      if (Object.values(session.playerNames).includes(name)) {
+        socket.emit("join-failure", {
+          message: `name ${name} already taken in this session`,
+        });
+        return;
+      }
       session.addPlayer(socket.id, name);
       socket.join(code); // Join the socket.io room for this session
       socket.emit("join-success", { code });
       io.to(code).emit("player-joined", { players: session.playerNames });
+      console.log(`+ ${name} joined game ${code} with socketid ${socket.id}`);
     } else {
       socket.emit("join-failure", { message: "Session not found" });
+    }
+  });
+
+  socket.on("rejoin-session", ({ code, name }) => {
+    console.log(
+      `${code} session rejoin for ${name} with socketid ${socket.id}`,
+    );
+    if (code in sessions) {
+      const session = sessions[code];
+      console.log(` game ${code} is in ${session.state} state`);
+      if (Object.values(session.playerNames).includes(name)) {
+        if (!session.state || session.state === GAME_STATES.WAITING) {
+          console.log(" ignored rejoin due to first navigate");
+          return; // ignore rejoin trigger on first navigate
+        }
+        console.log(`${name} rejoining game ${code}`);
+        socket.join(code);
+        // check if player already answered for label or answer
+        const gameState = session.state;
+        if (
+          (session.state == GAME_STATES.PROMPTING &&
+            name in session.currentRound.answers) ||
+          (session.state == GAME_STATES.LABELING &&
+            name in session.currentRound.labels)
+        ) {
+          gameState = GAME_STATES.WAITING;
+        }
+
+        socket.emit("rejoin-success", {
+          code: code,
+          gameState: gameState,
+          players: session.playerNames ?? {},
+          allAnswers: session.currentRound?.answers ?? {},
+          allLabels: session.currentRound?.labels ?? {},
+        });
+      } else {
+        console.log("rejoin failed, invalid player name");
+      }
+    } else {
+      console.log("rejoin failed, invalid session code");
     }
   });
 

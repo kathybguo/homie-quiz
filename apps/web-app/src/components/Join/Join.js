@@ -41,8 +41,13 @@ export default function Join() {
       code: sessionCode.toUpperCase(),
       name: name,
     });
+
     socket.once("join-success", ({ code }) => {
       navigate(`/${code}/${name}`);
+    });
+
+    socket.once("join-failure", ({ message }) => {
+      setErrors({ general: message });
     });
   };
 
@@ -50,6 +55,7 @@ export default function Join() {
     <div>
       <h1>Join a Game</h1>
       <form onSubmit={handleSubmit}>
+        {errors.general && <div className="error">{errors.general}</div>}
         <div>
           <input
             type="text"

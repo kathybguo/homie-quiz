@@ -41,6 +41,7 @@ export class Session {
     // if not the first round, save the previous round data
     if (this.currentRound) {
       this.rounds.push(this.currentRound);
+      this.updateScoresFromRound();
     }
     const prompt = this.getRandomPrompt();
     this.currentRound = new Round(prompt);
@@ -57,6 +58,7 @@ export class Session {
 
   completeRound() {
     if (this.round == 2) {
+      this.rounds.push(this.currentRound);
       this.state = GAME_STATES.OVER;
     } else {
       this.round += 1;
