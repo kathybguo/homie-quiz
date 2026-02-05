@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../../socket.js";
 import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
@@ -7,14 +7,22 @@ import PromptPhase from "./Prompt/PromptPhase.js";
 import RevealPhase from "./Reveal/RevealPhase.js";
 
 export default function Player() {
-  const { code } = useParams();
+  const { code, name } = useParams();
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
-  const [answer, setAnswer] = useState("");
   const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: answer
   const [playerNames, setPlayerNames] = useState({}); // key: socketId value: player name
   const [allLabels, setAllLabels] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("useEffect running, code:", code, "name:", name);
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+      // Optionally show an alert or message
+      alert("Connection to server lost. Returning to home page.");
+      navigate("/");
+    });
+
     socket.on("prompt-phase", (response) => {
       console.log("received response:", response);
       setGameState(GAME_STATES.PROMPTING);
@@ -39,12 +47,28 @@ export default function Player() {
       setGameState(GAME_STATES.GAME_OVER);
     });
 
+    socket.on("rejoin-success", (response) => {
+      console.log("Rejoined successfully:", response);
+
+      setGameState(response.gameState);
+      setAllAnswers(response.allAnswers);
+      setPlayerNames(response.players);
+      setAllLabels(response.allLabels);
+    });
+
+    if (code && name) {
+      console.log("Emitting rejoin-session...");
+      socket.emit("rejoin-session", { code, name });
+    }
+
     return () => {
+      socket.off("disconnect");
       socket.off("prompt-phase");
       socket.off("labeling-phase");
       socket.off("reveal-phase");
       socket.off("scores-phase");
       socket.off("game-over");
+      socket.off("rejoin-success");
     };
   }, []);
 
