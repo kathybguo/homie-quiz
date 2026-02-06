@@ -14,7 +14,7 @@ export default function LabelingPhase({
     Object.entries(allAnswers).filter(([socketId]) => socketId !== socket.id),
   );
   const filteredNames = Object.fromEntries(
-    Object.entries(playerNames).filter(([key, vavlue]) => key !== socket.id),
+    Object.entries(playerNames).filter(([key, value]) => key !== socket.id),
   );
 
   // State managed here

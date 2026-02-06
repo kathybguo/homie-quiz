@@ -19,7 +19,6 @@ export default function Host() {
   useEffect(() => {
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
-      // Optionally show an alert or message
       alert("Connection to server lost. Returning to home page.");
       navigate("/");
     });
@@ -56,7 +55,29 @@ export default function Host() {
     });
 
     socket.on("responses-received", (response) => {
-      setResponsesReceived(response.num);
+      setResponsesReceived(response.numResponses);
+    });
+
+    if (code) {
+      console.log("Emitting host-rejoin-session...");
+      socket.emit("rejoin-host", { code });
+    }
+
+    socket.on("rejoin-host-success", (response) => {
+      console.log("Host successfully rejoined");
+      setGameState(response.gameState);
+      setPlayerNames(response.playerNames);
+      setAllAnswers(response.allAnswers);
+      setAllLabels(response.allLabels);
+      setPlayerScores(response.playerScores);
+      setPrompt(response.round?.prompt);
+      setResponsesReceived(response.numResponses);
+      console.log(`game state ${gameState}`);
+    });
+
+    socket.on("womp-womp", (response) => {
+      console.log(`host rejoin attempt failed ${response.message}`);
+      console.log(`game state ${gameState}`);
     });
 
     return () => {
@@ -68,8 +89,9 @@ export default function Host() {
       socket.off("scores-phase");
       socket.off("game-over");
       socket.off("responses-received");
+      socket.off("rejoin-host-success");
     };
-  }, []);
+  }, [code, navigate]);
 
   const startGame = () => {
     socket.emit("start-game", { code: code });
@@ -86,6 +108,7 @@ export default function Host() {
   const numPlayers = Object.keys(playerNames).length;
 
   if (gameState === GAME_STATES.WAITING) {
+    console.log("HALLOOOO");
     return (
       <div>
         <h1>Lobby</h1>
@@ -169,5 +192,8 @@ export default function Host() {
         </button>
       </div>
     );
+  } else {
+    console.log(`clearly game state is ${gameState}`);
+    return <h1>urmmmm</h1>;
   }
 }
