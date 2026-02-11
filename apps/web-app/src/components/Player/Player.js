@@ -54,6 +54,8 @@ export default function Player() {
       setAllAnswers(response.allAnswers);
       setPlayerNames(response.players);
       setAllLabels(response.allLabels);
+      // if player name in answers
+      // then set gameState = GAME_STATES.WAITING, player already submitted
     });
 
     if (code && name) {
@@ -70,7 +72,7 @@ export default function Player() {
       socket.off("game-over");
       socket.off("rejoin-success");
     };
-  }, []);
+  }, [code, name, navigate]);
 
   const handleSubmitComplete = () => {
     setGameState(GAME_STATES.WAITING);

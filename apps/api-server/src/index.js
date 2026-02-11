@@ -33,6 +33,54 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
+    for (const [code, session] of Object.entries(sessions)) {
+      if (session.hostSocketId === socket.id) {
+        console.log(`Host disconnected from session ${code}`);
+        session.hostSocketId = null;
+      }
+    }
+  });
+
+  socket.on("rejoin-host", ({ code }) => {
+    console.log(`${code} host rejoin attempt`);
+    if (code in sessions) {
+      const session = sessions[code];
+
+      // only allow rejoin if no host is currently connected
+      if (session.hostSocketId !== null) {
+        console.log(" host is already connected to this session");
+        socket.emit("womp-womp", { message: "host already connected" });
+        return;
+      }
+      let numResponses = 0;
+
+      if (session.state == GAME_STATES.PROMPTING) {
+        numResponses = session.currentRound?.answers
+          ? Object.keys(session.currentRound.answers).length
+          : 0;
+      } else if (session.state == GAME_STATES.LABELING) {
+        numResponses = session.currentRound?.labels
+          ? Object.keys(session.currentRound.labels).length
+          : 0;
+      }
+
+      // no host connected, this socket becomes the new host
+      session.hostSocketId = socket.id;
+      socket.join(code);
+      console.log(` host rejoin success`);
+      console.log(` current round responses ${numResponses}`);
+      socket.emit("rejoin-host-success", {
+        gameState: session.state,
+        playerNames: session.playerNames,
+        allAnswers: session.currentRound?.answers ?? {},
+        allLabels: session.currentRound?.labels ?? {},
+        playerScores: session.playerScores,
+        round: session.currentRound ?? null,
+        numResponses: numResponses,
+      });
+    } else {
+      console.log(`Host rejoin failure session ${code} not found`);
+    }
   });
 
   socket.on("create-session", () => {
@@ -123,7 +171,7 @@ io.on("connection", (socket) => {
       }
       round.answers[socket.id] = answer;
       io.to(session.hostSocketId).emit("responses-received", {
-        num: Object.keys(round.answers).length,
+        numResponses: Object.keys(round.answers).length,
       });
       if (session.numPlayers == Object.keys(round.answers).length) {
         // all players have submitted answers
@@ -142,7 +190,7 @@ io.on("connection", (socket) => {
       const round = session.currentRound;
       round.labels[socket.id] = assignments;
       io.to(session.hostSocketId).emit("responses-received", {
-        num: Object.keys(round.labels).length,
+        numResponses: Object.keys(round.labels).length,
       });
       if (session.numPlayers == Object.keys(round.labels).length) {
         // Generate fake guesses for actual authors
