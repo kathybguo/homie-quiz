@@ -2,30 +2,25 @@ import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import "./RevealPhase.css";
 
-export default function RevealPhase({
-  allAnswers,
-  allLabels,
-  playerNames,
-  onComplete,
-}) {
+export default function RevealPhase({ allAnswers, allLabels, onComplete }) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [revealedAnswers, setRevealedAnswers] = useState(new Set());
 
   const answerIds = Object.keys(allAnswers);
   const currentAnswerId = answerIds[currentCardIndex];
   const currentAnswer = allAnswers[currentAnswerId];
-  const actualAuthorName = playerNames[currentAnswerId];
+  const actualAuthorName = currentAnswerId; // The key itself is the player name
   const isRevealed = revealedAnswers.has(currentAnswerId);
 
   // Get all guesses for this answer, including the actual author
   const guessesForThisAnswer = Object.entries(allLabels).map(
-    ([guesserSocketId, theirGuesses]) => {
-      const isActualAuthor = guesserSocketId === currentAnswerId;
+    ([guesserName, theirGuesses]) => {
+      const isActualAuthor = guesserName === currentAnswerId;
 
       return {
-        guesserName: playerNames[guesserSocketId],
+        guesserName: guesserName,
         guessedAuthorId: theirGuesses[currentAnswerId],
-        guessedAuthorName: playerNames[theirGuesses[currentAnswerId]],
+        guessedAuthorName: theirGuesses[currentAnswerId],
         isCorrect: theirGuesses[currentAnswerId] === currentAnswerId,
         isActualAuthor: isActualAuthor,
       };

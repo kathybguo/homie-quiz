@@ -1,11 +1,10 @@
 import "./ScoresPhase.css";
 
-export default function ScoresPhase({ playerScores, playerNames, onComplete }) {
+export default function ScoresPhase({ playerScores, onComplete }) {
   // Convert to array and sort by score descending
   const sortedPlayers = Object.entries(playerScores)
-    .map(([socketId, score]) => ({
-      socketId,
-      name: playerNames[socketId],
+    .map(([name, score]) => ({
+      name,
       score,
     }))
     .sort((a, b) => b.score - a.score)
@@ -20,7 +19,7 @@ export default function ScoresPhase({ playerScores, playerNames, onComplete }) {
       <div className="leaderboard">
         {sortedPlayers.map((player, index) => (
           <div
-            key={player.socketId}
+            key={player.name}
             className={`leaderboard-row ${index < 3 ? `rank-${index + 1}` : ""}`}
           >
             <div className="rank">

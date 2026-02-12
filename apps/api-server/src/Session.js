@@ -7,7 +7,7 @@ export class Session {
   constructor(code, hostSocketId) {
     this.sessionCode = code;
     this.playerScores = {}; // key: player name, value: player score
-    this.playerNames = {}; // key: socket id, value: player name
+    this.playerNames = [];
     this.state = GAME_STATES.WAITING;
     this.hostSocketId = hostSocketId;
     this.round = 1;
@@ -18,9 +18,9 @@ export class Session {
     this.numPlayers = 0;
   }
 
-  addPlayer(socketId, name) {
+  addPlayer(name) {
     this.playerScores[name] = 0;
-    this.playerNames[socketId] = name;
+    this.playerNames.push(name);
     this.numPlayers += 1;
   }
 
@@ -41,7 +41,6 @@ export class Session {
     // if not the first round, save the previous round data
     if (this.currentRound) {
       this.rounds.push(this.currentRound);
-      this.updateScoresFromRound();
     }
     const prompt = this.getRandomPrompt();
     this.currentRound = new Round(prompt);
@@ -49,8 +48,7 @@ export class Session {
 
   updateScoresFromRound() {
     const roundScores = this.currentRound.calculateScores();
-    for (const [socketId, points] of Object.entries(roundScores)) {
-      const playerName = this.playerNames[socketId];
+    for (const [playerName, points] of Object.entries(roundScores)) {
       this.playerScores[playerName] += points;
     }
     return roundScores;
@@ -68,7 +66,9 @@ export class Session {
   }
 
   reset() {
-    this.playerScores = {}; // key: player name, value: player score
+    Object.keys(this.playerScores).forEach((key) => {
+      this.playerScores[key] = 0;
+    });
     this.state = GAME_STATES.WAITING;
     this.round = 1;
     this.currentRound = null;
