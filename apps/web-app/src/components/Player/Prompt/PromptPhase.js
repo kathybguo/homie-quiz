@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { socket } from "../../../socket.js";
 
-export default function PromptPhase({ sessionCode, onSubmitComplete }) {
+export default function PromptPhase({ sessionCode, onSubmitComplete, name }) {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
 
@@ -11,7 +11,11 @@ export default function PromptPhase({ sessionCode, onSubmitComplete }) {
       setError("Answer cannot be empty");
       return;
     }
-    socket.emit("submit-answer", { code: sessionCode, answer: answer });
+    socket.emit("submit-answer", {
+      code: sessionCode,
+      answer: answer,
+      name: name,
+    });
     setError("");
     onSubmitComplete();
   };

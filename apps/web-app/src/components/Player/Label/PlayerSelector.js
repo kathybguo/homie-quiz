@@ -1,7 +1,7 @@
 export default function PlayerSelector({
   playerNames,
-  availablePlayerIds,
-  selectedPlayerId,
+  availablePlayerNames,
+  selectedPlayerName,
   onTogglePlayer,
 }) {
   return (
@@ -9,15 +9,15 @@ export default function PlayerSelector({
       <h3>Select a player:</h3>
 
       <div className="player-buttons">
-        {Object.entries(playerNames).map(([socketId, name]) => {
-          const isSelected = selectedPlayerId === socketId;
-          const isAvailable = availablePlayerIds.includes(socketId);
+        {playerNames.map((name) => {
+          const isSelected = selectedPlayerName === name;
+          const isAvailable = availablePlayerNames.includes(name);
           const isDisabled = !isSelected && !isAvailable;
 
           return (
             <button
-              key={socketId}
-              onClick={() => onTogglePlayer(socketId)}
+              key={name}
+              onClick={() => onTogglePlayer(name)}
               disabled={isDisabled}
               className={isSelected ? "selected" : ""}
             >

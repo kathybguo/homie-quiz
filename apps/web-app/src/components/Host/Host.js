@@ -7,7 +7,7 @@ import ScoresPhase from "./Scores/ScoresPhase.js";
 
 export default function Host() {
   const { code } = useParams();
-  const [playerNames, setPlayerNames] = useState({});
+  const [playerNames, setPlayerNames] = useState([]);
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [prompt, setPrompt] = useState("");
   const [responsesReceived, setResponsesReceived] = useState(0);
@@ -28,7 +28,6 @@ export default function Host() {
     });
 
     socket.on("prompt-phase", (response) => {
-      console.log("received response:", response);
       setPrompt(response.prompt);
       setGameState(GAME_STATES.PROMPTING);
     });
@@ -72,12 +71,11 @@ export default function Host() {
       setPlayerScores(response.playerScores);
       setPrompt(response.round?.prompt);
       setResponsesReceived(response.numResponses);
-      console.log(`game state ${gameState}`);
     });
 
-    socket.on("womp-womp", (response) => {
-      console.log(`host rejoin attempt failed ${response.message}`);
-      console.log(`game state ${gameState}`);
+    socket.on("new-game", (response) => {
+      setGameState(response.gameState);
+      setPlayerNames(response.playerNames);
     });
 
     return () => {
@@ -90,6 +88,7 @@ export default function Host() {
       socket.off("game-over");
       socket.off("responses-received");
       socket.off("rejoin-host-success");
+      socket.off("play-again");
     };
   }, [code, navigate]);
 
@@ -105,10 +104,17 @@ export default function Host() {
     socket.emit("finished-scores", { code: code });
   };
 
-  const numPlayers = Object.keys(playerNames).length;
+  const playAgain = () => {
+    socket.emit("play-again", { code: code });
+  };
+
+  const endGame = () => {
+    socket.emit("end-game", { code: code });
+    navigate("/");
+  };
+  const numPlayers = playerNames.length;
 
   if (gameState === GAME_STATES.WAITING) {
-    console.log("HALLOOOO");
     return (
       <div>
         <h1>Lobby</h1>
@@ -121,8 +127,8 @@ export default function Host() {
           <p>waiting for players to join...</p>
         )}
         <ul>
-          {Object.values(playerNames).map((playerName, index) => (
-            <li key={index}>{playerName}</li>
+          {playerNames.map((playerName) => (
+            <li key={playerName}>{playerName}</li>
           ))}
         </ul>
 
@@ -163,7 +169,6 @@ export default function Host() {
       <RevealPhase
         allAnswers={allAnswers}
         allLabels={allLabels}
-        playerNames={playerNames}
         onComplete={finishedReveal}
       />
     );
@@ -173,7 +178,6 @@ export default function Host() {
     return (
       <ScoresPhase
         playerScores={playerScores}
-        playerNames={playerNames}
         onComplete={finishedScores}
       ></ScoresPhase>
     );
@@ -183,13 +187,8 @@ export default function Host() {
     return (
       <div>
         <h1>Game Over</h1>
-        <button
-          onClick={() => {
-            socket.emit("play-again", { code: code });
-          }}
-        >
-          play again?
-        </button>
+        <button onClick={playAgain}>play again?</button>
+        <button onClick={endGame}>finished</button>
       </div>
     );
   } else {

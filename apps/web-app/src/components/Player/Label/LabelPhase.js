@@ -5,30 +5,33 @@ import { useState } from "react";
 
 export default function LabelingPhase({
   allAnswers,
-  playerNames,
   sessionCode,
   onSubmitComplete,
+  name,
 }) {
-  // Filter out current user's data
+  // Derive player names from allAnswers keys
+  const allPlayerNames = Object.keys(allAnswers);
+
+  // Filter out current user's answer and name
   const filteredAnswers = Object.fromEntries(
-    Object.entries(allAnswers).filter(([socketId]) => socketId !== socket.id),
+    Object.entries(allAnswers).filter(([playerName]) => playerName !== name),
   );
-  const filteredNames = Object.fromEntries(
-    Object.entries(playerNames).filter(([key, value]) => key !== socket.id),
+  const filteredNames = allPlayerNames.filter(
+    (playerName) => playerName !== name,
   );
 
   // State managed here
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [labelAssignments, setLabelAssignments] = useState({});
-  // labelAssignments = { answerSocketId: guessedPlayerSocketId }
+  // labelAssignments = { answerAuthorName: guessedPlayerName }
 
   const answerIds = Object.keys(filteredAnswers);
   const currentAnswerId = answerIds[currentCardIndex];
 
   // Derive which labels are used
-  const usedPlayerIds = new Set(Object.values(labelAssignments));
-  const availablePlayerIds = Object.keys(filteredNames).filter(
-    (id) => !usedPlayerIds.has(id),
+  const usedPlayerNames = new Set(Object.values(labelAssignments));
+  const availablePlayerNames = filteredNames.filter(
+    (playerName) => !usedPlayerNames.has(playerName),
   );
 
   // Handler for carousel navigation
@@ -42,8 +45,8 @@ export default function LabelingPhase({
     );
   };
 
-  const handleTogglePlayer = (playerSocketId) => {
-    if (labelAssignments[currentAnswerId] === playerSocketId) {
+  const handleTogglePlayer = (playerName) => {
+    if (labelAssignments[currentAnswerId] === playerName) {
       // Unassign if clicking the same player
       const newAssignments = { ...labelAssignments };
       delete newAssignments[currentAnswerId];
@@ -52,7 +55,7 @@ export default function LabelingPhase({
       // Assign this player
       setLabelAssignments({
         ...labelAssignments,
-        [currentAnswerId]: playerSocketId,
+        [currentAnswerId]: playerName,
       });
     }
   };
@@ -66,6 +69,7 @@ export default function LabelingPhase({
     socket.emit("submit-labels", {
       code: sessionCode,
       assignments: labelAssignments,
+      name: name,
     });
     onSubmitComplete();
   };
@@ -84,8 +88,8 @@ export default function LabelingPhase({
 
       <PlayerSelector
         playerNames={filteredNames}
-        availablePlayerIds={availablePlayerIds}
-        selectedPlayerId={labelAssignments[currentAnswerId]}
+        availablePlayerNames={availablePlayerNames}
+        selectedPlayerName={labelAssignments[currentAnswerId]}
         onTogglePlayer={handleTogglePlayer}
       />
 

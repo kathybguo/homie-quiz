@@ -94,17 +94,20 @@ io.on("connection", (socket) => {
   socket.on("join-session", ({ code, name }) => {
     if (code in sessions) {
       const session = sessions[code];
-      if (Object.values(session.playerNames).includes(name)) {
+      if (session.playerNames.includes(name)) {
         socket.emit("join-failure", {
           message: `name ${name} already taken in this session`,
         });
         return;
       }
-      session.addPlayer(socket.id, name);
+      session.addPlayer(name);
       socket.join(code); // Join the socket.io room for this session
       socket.emit("join-success", { code });
       io.to(code).emit("player-joined", { players: session.playerNames });
       console.log(`+ ${name} joined game ${code} with socketid ${socket.id}`);
+      console.log(
+        `   SESSION ${code} HAS PLAYERS ${JSON.stringify(session.playerNames)}`,
+      );
     } else {
       socket.emit("join-failure", { message: "Session not found" });
     }
@@ -117,7 +120,7 @@ io.on("connection", (socket) => {
     if (code in sessions) {
       const session = sessions[code];
       console.log(` game ${code} is in ${session.state} state`);
-      if (Object.values(session.playerNames).includes(name)) {
+      if (session.playerNames.includes(name)) {
         if (!session.state || session.state === GAME_STATES.WAITING) {
           console.log(" ignored rejoin due to first navigate");
           return; // ignore rejoin trigger on first navigate
@@ -138,7 +141,7 @@ io.on("connection", (socket) => {
         socket.emit("rejoin-success", {
           code: code,
           gameState: gameState,
-          players: session.playerNames ?? {},
+          players: session.playerNames ?? [],
           allAnswers: session.currentRound?.answers ?? {},
           allLabels: session.currentRound?.labels ?? {},
         });
@@ -156,20 +159,20 @@ io.on("connection", (socket) => {
       session.start();
       io.to(code).emit("prompt-phase", { prompt: session.currentRound.prompt });
     } else {
-      socket.emit("start-failure", { message: "Session not found" });
+      io.to(code).emit("start-failure", { message: "Session not found" });
       console.log(`urm FAKE CODE ALERT wtf is ${code}`);
     }
   });
 
-  socket.on("submit-answer", ({ code, answer }) => {
+  socket.on("submit-answer", ({ code, answer, name }) => {
     if (code in sessions) {
       const session = sessions[code];
       const round = session.currentRound;
-      if (socket.id in round.answers) {
+      if (name in round.answers) {
         console.log("shoould be impossible case???");
         return;
       }
-      round.answers[socket.id] = answer;
+      round.answers[name] = answer;
       io.to(session.hostSocketId).emit("responses-received", {
         numResponses: Object.keys(round.answers).length,
       });
@@ -184,23 +187,25 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("submit-labels", ({ code, assignments }) => {
+  socket.on("submit-labels", ({ code, assignments, name }) => {
     if (code in sessions) {
       const session = sessions[code];
       const round = session.currentRound;
-      round.labels[socket.id] = assignments;
+      round.labels[name] = assignments;
       io.to(session.hostSocketId).emit("responses-received", {
         numResponses: Object.keys(round.labels).length,
       });
       if (session.numPlayers == Object.keys(round.labels).length) {
         // Generate fake guesses for actual authors
-        for (const answerAuthorId of Object.keys(round.answers)) {
-          const otherPlayerIds = Object.keys(session.playerNames).filter(
-            (id) => id !== answerAuthorId,
+        for (const answerAuthorName of Object.keys(round.answers)) {
+          const otherPlayerNames = session.playerNames.filter(
+            (playerName) => playerName !== answerAuthorName,
           );
-          const randomPlayerId =
-            otherPlayerIds[Math.floor(Math.random() * otherPlayerIds.length)];
-          round.labels[answerAuthorId][answerAuthorId] = randomPlayerId;
+          const randomPlayerName =
+            otherPlayerNames[
+              Math.floor(Math.random() * otherPlayerNames.length)
+            ];
+          round.labels[answerAuthorName][answerAuthorName] = randomPlayerName;
         }
         session.state = GAME_STATES.REVEAL;
         io.to(code).emit("reveal-phase", {
@@ -258,15 +263,21 @@ io.on("connection", (socket) => {
   });
 
   socket.on("end-game", ({ code }) => {
-    delete games[code];
+    if (code in sessions) {
+      delete sessions[code];
+    }
   });
 
   socket.on("play-again", ({ code }) => {
     if (code in sessions) {
       const session = sessions[code];
       session.reset();
+      io.to(code).emit("new-game", {
+        gameState: session.state,
+        playerNames: Object.keys(session.playerScores),
+      });
     } else {
-      socket.emit("play-again-failure", { message: "Session not found" });
+      io.to(code).emit("play-again-failure", { message: "Session not found" });
       console.log("session not found for play again, should be impossible");
     }
   });

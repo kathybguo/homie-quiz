@@ -80,15 +80,19 @@ export default function Player() {
 
   if (gameState === GAME_STATES.PROMPTING) {
     return (
-      <PromptPhase sessionCode={code} onSubmitComplete={handleSubmitComplete} />
+      <PromptPhase
+        sessionCode={code}
+        onSubmitComplete={handleSubmitComplete}
+        name={name}
+      />
     );
   } else if (gameState === GAME_STATES.LABELING) {
     return (
       <LabelPhase
         allAnswers={allAnswers}
         sessionCode={code}
-        playerNames={playerNames}
         onSubmitComplete={handleSubmitComplete}
+        name={name}
       ></LabelPhase>
     );
   } else if (gameState === GAME_STATES.REVEAL) {
