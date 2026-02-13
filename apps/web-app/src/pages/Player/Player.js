@@ -5,20 +5,24 @@ import { GAME_STATES } from "@hq/utils";
 import LabelPhase from "./Label/LabelPhase.js";
 import PromptPhase from "./Prompt/PromptPhase.js";
 import RevealPhase from "./Reveal/RevealPhase.js";
+import Waiting from "./Waiting/Waiting.js";
+import Scores from "./Scores/Scores.js";
 
 export default function Player() {
   const { code, name } = useParams();
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
-  const [allAnswers, setAllAnswers] = useState({}); // key: player's socketId, value: answer
-  const [playerNames, setPlayerNames] = useState({}); // key: socketId value: player name
+  const [allAnswers, setAllAnswers] = useState({});
+  const [playerNames, setPlayerNames] = useState({});
   const [allLabels, setAllLabels] = useState({});
+  const [playerScore, setPlayerScore] = useState(null);
+  const [playerRank, setPlayerRank] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log("useEffect running, code:", code, "name:", name);
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
-      // Optionally show an alert or message
       alert("Connection to server lost. Returning to home page.");
       navigate("/");
     });
@@ -41,21 +45,28 @@ export default function Player() {
 
     socket.on("scores-phase", () => {
       setGameState(GAME_STATES.SCORES);
+      // Request scores when entering scores phase
+      socket.emit("get-player-score", { code, name });
     });
 
     socket.on("game-over", () => {
       setGameState(GAME_STATES.GAME_OVER);
+      // Request final score and rank
+      socket.emit("get-player-score", { code, name });
+    });
+
+    socket.on("player-score", (response) => {
+      console.log("Received player score:", response);
+      setPlayerScore(response.score);
+      setPlayerRank(response.rank);
     });
 
     socket.on("rejoin-success", (response) => {
       console.log("Rejoined successfully:", response);
-
       setGameState(response.gameState);
       setAllAnswers(response.allAnswers);
       setPlayerNames(response.players);
       setAllLabels(response.allLabels);
-      // if player name in answers
-      // then set gameState = GAME_STATES.WAITING, player already submitted
     });
 
     if (code && name) {
@@ -71,11 +82,19 @@ export default function Player() {
       socket.off("scores-phase");
       socket.off("game-over");
       socket.off("rejoin-success");
+      socket.off("player-score");
     };
   }, [code, name, navigate]);
 
   const handleSubmitComplete = () => {
     setGameState(GAME_STATES.WAITING);
+  };
+
+  const getRankSuffix = (rank) => {
+    if (rank === 1) return "st";
+    if (rank === 2) return "nd";
+    if (rank === 3) return "rd";
+    return "th";
   };
 
   if (gameState === GAME_STATES.PROMPTING) {
@@ -93,7 +112,7 @@ export default function Player() {
         sessionCode={code}
         onSubmitComplete={handleSubmitComplete}
         name={name}
-      ></LabelPhase>
+      />
     );
   } else if (gameState === GAME_STATES.REVEAL) {
     return (
@@ -101,23 +120,13 @@ export default function Player() {
         allAnswers={allAnswers}
         allLabels={allLabels}
         playerNames={playerNames}
-      ></RevealPhase>
+      />
     );
-  } else if (gameState === GAME_STATES.SCORES) {
-    return (
-      <div>
-        <h1>Player Scores Phase</h1>
-        {/* show just your own ranking and score
-        maybe with an emoji/meme depending on where in the ranks you stand */}
-      </div>
-    );
-  } else if (gameState === GAME_STATES.GAME_OVER) {
-    return (
-      <div>
-        <h1>Game Over</h1>
-        <h3>You placed _th with score _</h3>
-      </div>
-    );
+  } else if (
+    gameState === GAME_STATES.SCORES ||
+    gameState === GAME_STATES.GAME_OVER
+  ) {
+    return <Scores score={playerScore} rank={playerRank} />;
   }
-  return <div>Waiting for other players...</div>;
+  return <Waiting />;
 }

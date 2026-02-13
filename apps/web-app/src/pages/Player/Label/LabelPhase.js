@@ -1,7 +1,9 @@
-import AnswerCarousel from "./AnswerCarousel.js";
-import PlayerSelector from "./PlayerSelector.js";
+import AnswerCarousel from "./AnswerCarousel/AnswerCarousel.js";
+import PlayerSelector from "./PlayerSelector/PlayerSelector.js";
 import { socket } from "../../../socket.js";
 import { useState } from "react";
+import Button from "../../../components/Button/Button.jsx";
+import styles from "./LabelPhase.module.css";
 
 export default function LabelingPhase({
   allAnswers,
@@ -75,9 +77,7 @@ export default function LabelingPhase({
   };
 
   return (
-    <div>
-      <h1>Who wrote this?</h1>
-
+    <div className={styles.container}>
       <AnswerCarousel
         currentAnswer={filteredAnswers[currentAnswerId]}
         currentIndex={currentCardIndex}
@@ -93,16 +93,17 @@ export default function LabelingPhase({
         onTogglePlayer={handleTogglePlayer}
       />
 
-      <div>
-        Labeled: {Object.keys(labelAssignments).length} / {answerIds.length}
+      <div className={styles.bottom}>
+        <Button
+          variant="primary"
+          size="s"
+          onClick={handleSubmit}
+          disabled={Object.keys(labelAssignments).length < answerIds.length}
+        >
+          submit
+        </Button>
+        {Object.keys(labelAssignments).length} / {answerIds.length}
       </div>
-
-      <button
-        onClick={handleSubmit}
-        disabled={Object.keys(labelAssignments).length < answerIds.length}
-      >
-        Submit Labels
-      </button>
     </div>
   );
 }

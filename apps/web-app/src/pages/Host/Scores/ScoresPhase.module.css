@@ -12,6 +12,7 @@
   font-weight: var(--font-extrabold);
   color: var(--base-black);
   margin-bottom: var(--space-xl);
+  text-shadow: var(--text-shadow);
 }
 
 /* Leaderboard container */

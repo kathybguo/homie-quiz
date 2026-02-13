@@ -45,8 +45,9 @@
 
 /* Variants */
 .button[data-variant="primary"] {
-  background: var(--base-light-grey);
-  color: var(--base-black);
+  background: var(--bg-color, var(--base-light-grey));
+  color: var(--custom-color, var(--base-black));
+  margin: 0;
 }
 
 .button[data-variant="glass"] {
@@ -60,6 +61,7 @@
 
 .button[data-variant="just-text"] {
   background: transparent;
-  color: var(--base-white);
+  color: var(--custom-color);
   padding: 0;
+  margin: 0;
 }

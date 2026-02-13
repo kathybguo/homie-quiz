@@ -32,38 +32,10 @@ export default function GameOver({ playerScores, playAgain, endGame }) {
     return playersWithRanks.find((p) => p.rank === targetRank) || null;
   };
 
-  const podiumOrder = [
-    getPlayerForPosition(2), // 2nd place (left)
-    getPlayerForPosition(1), // 1st place (center)
-    getPlayerForPosition(3), // 3rd place (right)
-  ];
-
   return (
     <GradientBackground variant="host-scores">
       <div className={styles.container}>
         <h1 className={styles.title}>game over</h1>
-
-        {/* <div className={styles.podium}>
-          {podiumOrder.map((player, index) => {
-            if (!player)
-              return <div key={index} className={styles.emptyPodium} />;
-
-            const displayRank = player.rank;
-
-            return (
-              <div
-                key={`${player.name}-${index}`}
-                className={`${styles.podiumPlace} ${styles[`place${displayRank}`]}`}
-              >
-                <div className={styles.rankBadge}>{displayRank}</div>
-                <div className={styles.playerName}>{player.name}</div>
-                <div className={styles.playerScore}>{player.score}</div>
-              </div>
-            );
-          })}
-        </div> */}
-        {/* 
-        <div className={styles.buttons}> */}
         <Button variant="glass" size="m" onClick={playAgain}>
           play again
         </Button>

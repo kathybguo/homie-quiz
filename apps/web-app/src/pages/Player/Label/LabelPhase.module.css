@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  gap: var(--space-xs);
+  bottom: 5vh;
+  color: var(--base-dark-grey);
+}

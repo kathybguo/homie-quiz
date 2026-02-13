@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { socket } from "../../socket.js";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button/Button.jsx";
+import InputField from "../../components/InputField/InputField.jsx";
+import styles from "./Join.module.css";
 
 export default function Join() {
   const [sessionCode, setSessionCode] = useState("");
@@ -16,10 +19,10 @@ export default function Join() {
     const newErrors = {};
 
     if (sessionCode.trim() === "") {
-      newErrors.sessionCode = "Session code cannot be empty";
+      newErrors.sessionCode = "game code cannot be empty";
     }
     if (name.trim() === "") {
-      newErrors.name = "Name cannot be empty";
+      newErrors.name = "name cannot be empty";
     }
 
     // return if there are any errors
@@ -52,29 +55,30 @@ export default function Join() {
   };
 
   return (
-    <div>
-      <h1>Join a Game</h1>
-      <form onSubmit={handleSubmit}>
-        {errors.general && <div className="error">{errors.general}</div>}
-        <div>
-          <input
-            type="text"
-            placeholder="Session Code"
-            onChange={(e) => setSessionCode(e.target.value)}
-          />
-          {errors.sessionCode && (
-            <span className="error">{errors.sessionCode}</span>
-          )}
-        </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Name"
-            onChange={(e) => setName(e.target.value)}
-          />
-          {errors.name && <span className="error">{errors.name}</span>}
-        </div>
-        <button type="submit">Join</button>
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {errors.general && <div className={styles.error}>{errors.general}</div>}
+        {errors.sessionCode && (
+          <span className={styles.error}>{errors.sessionCode}</span>
+        )}
+        <InputField
+          placeholder="code"
+          value={sessionCode}
+          onChange={(e) => setSessionCode(e.target.value)}
+          error={errors.sessionCode}
+        />
+
+        <InputField
+          placeholder="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={errors.name}
+        />
+        {errors.name && <span className={styles.error}>{errors.name}</span>}
+
+        <Button variant="glass" size="s" type="submit">
+          play
+        </Button>
       </form>
     </div>
   );
