@@ -16,7 +16,11 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://localhost:3000"],
+    origin: [
+      "http://localhost:3000",
+      "https://localhost:3000",
+      "https://homie-quiz-qv1z.onrender.com",
+    ],
     methods: ["GET", "POST"],
   },
 });
