@@ -1,0 +1,76 @@
+.container {
+  min-width: 100vw;
+  min-height: 100vh;
+  padding-top: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoresTitle {
+  font-size: var(--text-xxxl);
+  font-weight: var(--font-extrabold);
+  color: var(--base-black);
+  margin-bottom: var(--space-xl);
+}
+
+/* Leaderboard container */
+.leaderboard {
+  width: 100%;
+  max-width: 35vw;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* Each row pill */
+.leaderboardRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  align-items: center;
+  background: var(--base-white);
+  padding: 1rem 1.5rem;
+  border-radius: 999px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  font-size: var(--text-md);
+}
+
+/* Rank number */
+.rankNumber {
+  font-weight: var(--font-extrabold);
+  color: var(--base-dark-grey);
+}
+
+/* Player name */
+.playerName {
+  color: var(--base-black);
+}
+
+/* Score */
+.playerScore {
+  color: var(--base-medium-grey);
+}
+
+/* Round counter - bottom left */
+.roundCounter {
+  position: fixed;
+  bottom: 4vh;
+  left: 4vw;
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-md);
+  color: var(--base-white);
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nextButton {
+  position: fixed;
+  bottom: 4vh;
+  right: 4vw;
+}

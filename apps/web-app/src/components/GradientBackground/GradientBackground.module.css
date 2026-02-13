@@ -1,0 +1,23 @@
+.background {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.background[data-variant="host-landing"] {
+  background-image: url("../../assets/host-landing.png");
+}
+
+.background[data-variant="host-prompt"] {
+  background-image: url("../../assets/host-prompt.png");
+}
+
+.background[data-variant="host-scores"] {
+  background-image: url("../../assets/host-scores.png");
+}

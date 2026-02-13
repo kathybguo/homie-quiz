@@ -1,0 +1,39 @@
+:root {
+  /* Surfaces */
+  --surface-solid: var(--base-white);
+  --surface-glass-bg: rgba(255, 255, 255, var(--opacity-glass));
+  --surface-glass-border: rgba(255, 255, 255, var(--opacity-border));
+
+  /* Text */
+  --text-on-white: var(--base-dark-grey);
+  --text-on-gradient: var(--base-black);
+  --accent-text-on-gradient: var(--base-white);
+  --text-muted: var(--base-medium-grey);
+
+  /* Player Colors - for name tags */
+  --player-color-1: var(--base-pink);
+  --player-color-2: var(--base-purple);
+  --player-color-3: var(--base-blue);
+  --player-color-4: var(--base-yellow);
+  --player-color-5: var(--base-peach);
+  --player-color-6: var(--base-mint);
+
+  /* Effects */
+  --effect-glass-blur: var(--blur-glass);
+  --effect-shadow: 0 8px var(--blur-shadow) rgba(0, 0, 0, var(--opacity-shadow));
+
+  /* Spacing*/
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+  --space-xxl: 60px;
+  --space-xxxl: 100px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+}

@@ -1,0 +1,65 @@
+.button {
+  font-family: var(--font-primary);
+  font-weight: var(--font-extrabold);
+  border-radius: var(--radius-full);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.button[data-size="xl"] {
+  padding: var(--space-lg) var(--space-xl);
+  font-size: var(--text-xl);
+}
+
+.button[data-size="l"] {
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--text-sm);
+}
+
+.button[data-size="m"] {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-xs);
+}
+
+.button[data-size="s"] {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-xxs);
+}
+
+/* Variants */
+.button[data-variant="primary"] {
+  background: var(--base-light-grey);
+  color: var(--base-black);
+}
+
+.button[data-variant="glass"] {
+  background: var(--surface-glass-bg);
+  color: var(--text-on-gradient);
+  border: 1px solid var(--surface-glass-border);
+  backdrop-filter: blur(var(--effect-glass-blur));
+  -webkit-backdrop-filter: blur(var(--effect-glass-blur));
+  box-shadow: var(--effect-shadow);
+}
+
+.button[data-variant="just-text"] {
+  background: transparent;
+  color: var(--base-white);
+  padding: 0;
+}

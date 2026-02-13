@@ -1,0 +1,132 @@
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: space-between; */
+}
+
+.title {
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-xxxxl);
+  color: var(--base-black);
+  text-transform: lowercase;
+}
+
+/* Podium Container */
+.podium {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+/* Individual Podium Places */
+.podiumPlace {
+  background: var(--base-white);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  position: relative;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Heights for podium effect */
+.place1 {
+  height: 350px;
+  order: 2; /* Center */
+}
+
+.place2 {
+  height: 280px;
+  order: 1; /* Left */
+}
+
+.place3 {
+  height: 220px;
+  order: 3; /* Right */
+}
+
+.emptyPodium {
+  min-width: 200px;
+  height: 220px;
+}
+
+/* Rank Badge */
+.rankBadge {
+  position: absolute;
+  top: -20px;
+  font-family: var(--font-primary);
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-2xl);
+  color: var(--base-dark-grey);
+  background: var(--base-white);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Player Info */
+.playerName {
+  font-family: var(--font-primary);
+  font-weight: var(--font-regular);
+  font-size: var(--text-xl);
+  color: var(--base-black);
+  text-align: center;
+  word-break: break-word;
+  margin-top: var(--space-lg);
+}
+
+.playerScore {
+  font-family: var(--font-primary);
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-2xl);
+  color: var(--base-medium-grey);
+  margin-top: auto; /* Push to bottom */
+}
+
+/* Buttons */
+Button {
+  margin-top: var(--space-xs);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .podiumPlace {
+    min-width: 150px;
+    padding: var(--space-md);
+  }
+
+  .place1 {
+    height: 280px;
+  }
+
+  .place2 {
+    height: 220px;
+  }
+
+  .place3 {
+    height: 180px;
+  }
+
+  .title {
+    font-size: var(--text-3xl);
+  }
+
+  .playerName {
+    font-size: var(--text-lg);
+  }
+
+  .playerScore {
+    font-size: var(--text-xl);
+  }
+}
