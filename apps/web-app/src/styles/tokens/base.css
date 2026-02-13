@@ -22,4 +22,5 @@
   /* Effects */
   --blur-glass: 10px;
   --blur-shadow: 32px;
+  --blur-shadow-sm: 5px;
 }

@@ -1,0 +1,7 @@
+.text {
+  font-weight: var(--font-extrabold);
+  color: var(--accent-text-on-gradient);
+  font-size: var(--text-lg);
+  text-align: center;
+  text-shadow: var(--text-shadow);
+}

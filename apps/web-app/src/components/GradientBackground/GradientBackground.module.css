@@ -10,6 +10,7 @@
   background-repeat: no-repeat;
 }
 
+/* Host variants - always use these */
 .background[data-variant="host-landing"] {
   background-image: url("../../assets/host-landing.png");
 }
@@ -20,4 +21,31 @@
 
 .background[data-variant="host-scores"] {
   background-image: url("../../assets/host-scores.png");
+}
+
+/* Player variants - default to player backgrounds on mobile */
+.background[data-variant="player-scores"] {
+  background-image: url("../../assets/player-scores.png");
+}
+
+.background[data-variant="player-reveal"] {
+  background-image: url("../../assets/player-reveal.png");
+}
+
+.background[data-variant="player-waiting"] {
+  background-image: url("../../assets/player-waiting.png");
+}
+
+@media (min-width: 600px) {
+  .background[data-variant="player-scores"] {
+    background-image: url("../../assets/host-scores.png");
+  }
+
+  .background[data-variant="player-reveal"] {
+    background-image: url("../../assets/host-landing.png");
+  }
+
+  .background[data-variant="player-waiting"] {
+    background-image: url("../../assets/host-landing.png");
+  }
 }

@@ -1,0 +1,49 @@
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-extrabold);
+  font-family: var(--text-primary);
+  border-radius: 50px;
+  background-color: var(--base-light-grey);
+  color: var(--base-black);
+
+  border: none;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--base-medium-grey);
+  font-size: var(--text-xs);
+  font-weight: var(--font-extrabold);
+}
+
+.input:focus {
+  background-color: var(--base-white);
+  border: 2px solid var(--base-purple);
+}
+
+.inputError {
+  border: 2px solid var(--base-pink);
+}
+
+.input[data-variant="glass"] {
+  background: var(--surface-glass-bg);
+  color: var(--text-on-gradient);
+  border: 1px solid var(--surface-glass-border);
+  backdrop-filter: blur(var(--effect-glass-blur));
+  -webkit-backdrop-filter: blur(var(--effect-glass-blur));
+  box-shadow: var(--effect-shadow);
+}
+
+.input:focus[data-variant="glass"] {
+  border: 2px solid var(--base-blue);
+}

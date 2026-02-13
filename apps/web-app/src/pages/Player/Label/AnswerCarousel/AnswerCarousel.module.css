@@ -1,0 +1,27 @@
+.carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-sm);
+  height: 50vh;
+  gap: var(--space-sm);
+  width: 100%;
+}
+.answer {
+  flex: 1;
+  max-width: 80%;
+  height: 80%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-md);
+
+  color: var(--base-black);
+  background-color: var(--base-light-grey);
+  border-radius: var(--radius-lg);
+  word-break: break-word;
+}

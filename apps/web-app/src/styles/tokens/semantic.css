@@ -21,6 +21,8 @@
   /* Effects */
   --effect-glass-blur: var(--blur-glass);
   --effect-shadow: 0 8px var(--blur-shadow) rgba(0, 0, 0, var(--opacity-shadow));
+  --text-shadow: 1px 2px var(--blur-shadow-sm)
+    rgba(0, 0, 0, var(--opacity-shadow));
 
   /* Spacing*/
   --space-xs: 8px;

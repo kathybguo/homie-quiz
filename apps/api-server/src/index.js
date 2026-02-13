@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
       const session = sessions[code];
       if (session.playerNames.includes(name)) {
         socket.emit("join-failure", {
-          message: `name ${name} already taken in this session`,
+          message: `name ${name} already taken`,
         });
         return;
       }
@@ -111,7 +111,7 @@ io.on("connection", (socket) => {
         `   SESSION ${code} HAS PLAYERS ${JSON.stringify(session.playerNames)}`,
       );
     } else {
-      socket.emit("join-failure", { message: "Session not found" });
+      socket.emit("join-failure", { message: "game code not found" });
     }
   });
 
@@ -253,17 +253,38 @@ io.on("connection", (socket) => {
       console.log("finished-reveal session not found for code:", code);
     }
   });
+  socket.on("get-player-score", ({ code, name }) => {
+    if (code in sessions) {
+      const session = sessions[code];
+      const playerScore = session.playerScores[name];
+
+      // Calculate rank by sorting all players by score
+      const sortedPlayers = Object.entries(session.playerScores).sort(
+        ([, scoreA], [, scoreB]) => scoreB - scoreA,
+      ); // Descending order
+
+      const rank =
+        sortedPlayers.findIndex(([playerName]) => playerName === name) + 1;
+
+      socket.emit("player-score", {
+        score: playerScore,
+        rank: rank,
+      });
+    }
+  });
 
   socket.on("finished-scores", ({ code }) => {
     if (code in sessions) {
       const session = sessions[code];
       session.completeRound();
       if (session.state === GAME_STATES.OVER) {
+        // Just emit game-over, players will request their own scores
         io.to(code).emit("game-over");
       } else {
         io.to(code).emit("prompt-phase", {
           prompt: session.currentRound.prompt,
           currRound: session.round,
+          totalRounds: session.totalRounds,
         });
       }
     }

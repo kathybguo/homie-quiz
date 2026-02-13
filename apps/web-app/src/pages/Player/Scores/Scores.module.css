@@ -1,0 +1,19 @@
+.container {
+  font-weight: var(--font-extrabold);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-xl);
+  text-shadow: var(--text-shadow);
+}
+
+.score {
+  font-size: var(--text-xxxl);
+  color: var(--text-on-gradient);
+}
+
+.rank {
+  font-size: var(--text-md);
+  color: var(--accent-text-on-gradient);
+}

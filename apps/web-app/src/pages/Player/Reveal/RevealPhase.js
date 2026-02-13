@@ -1,7 +1,10 @@
-export default function RevealPhase({ allAnswers, allLabels, playerNames }) {
+import GradientBackground from "../../../components/GradientBackground/GradientBackground.jsx";
+import styles from "./RevealPhase.module.css";
+
+export default function RevealPhase() {
   return (
-    <div>
-      <h1>Reveal</h1>
-    </div>
+    <GradientBackground variant="player-reveal">
+      <div className={styles.text}>answers revealed</div>
+    </GradientBackground>
   );
 }
