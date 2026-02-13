@@ -16,6 +16,7 @@ export class Session {
     this.usedPrompts = [];
     this.rounds = [];
     this.numPlayers = 0;
+    this.totalRounds = 0;
   }
 
   addPlayer(name) {
@@ -32,8 +33,9 @@ export class Session {
     return this.players.find((p) => p.id === socketId);
   }
 
-  start() {
+  start(numRounds) {
     this.state = GAME_STATES.PROMPTING;
+    this.totalRounds = numRounds;
     this.startNewRound();
   }
 
@@ -55,7 +57,7 @@ export class Session {
   }
 
   completeRound() {
-    if (this.round == 2) {
+    if (this.round == this.totalRounds) {
       this.rounds.push(this.currentRound);
       this.state = GAME_STATES.OVER;
     } else {

@@ -1,0 +1,25 @@
+:root {
+  --base-pink: #ffb3d9;
+  --base-purple: #c8b3ff;
+  --base-blue: #b3e5ff;
+  --base-yellow: #fff3b3;
+  --base-peach: #ffd9b3;
+  --base-mint: #b3ffe5;
+
+  /* Neutrals */
+
+  --base-black: #494949;
+  --base-dark-grey: #565656;
+  --base-medium-grey: #929292;
+  --base-light-grey: #d9d9d9;
+  --base-white: #fbfbfb;
+
+  /* Opacity values */
+  --opacity-glass: 0.5;
+  --opacity-border: 0.2;
+  --opacity-shadow: 0.1;
+
+  /* Effects */
+  --blur-glass: 10px;
+  --blur-shadow: 32px;
+}

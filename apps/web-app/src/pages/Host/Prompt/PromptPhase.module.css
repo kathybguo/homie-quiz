@@ -1,0 +1,17 @@
+.progressCounter {
+  font-size: var(--text-md);
+  font-weight: var(--font-extrabold);
+  color: var(--accent-text-on-gradient);
+  position: fixed;
+  bottom: 2vh;
+  right: 2vw;
+  margin: 0;
+}
+
+.prompt {
+  font-weight: var(--font-extrabold);
+  font-size: var(--text-xxxl);
+  color: var(--text-on-gradient);
+  text-align: center;
+  width: 90vw;
+}

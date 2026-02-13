@@ -77,6 +77,8 @@ io.on("connection", (socket) => {
         playerScores: session.playerScores,
         round: session.currentRound ?? null,
         numResponses: numResponses,
+        currRound: session.round,
+        totalRounds: session.totalRounds,
       });
     } else {
       console.log(`Host rejoin failure session ${code} not found`);
@@ -128,7 +130,7 @@ io.on("connection", (socket) => {
         console.log(`${name} rejoining game ${code}`);
         socket.join(code);
         // check if player already answered for label or answer
-        const gameState = session.state;
+        let gameState = session.state;
         if (
           (session.state == GAME_STATES.PROMPTING &&
             name in session.currentRound.answers) ||
@@ -153,11 +155,15 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("start-game", ({ code }) => {
+  socket.on("start-game", ({ code, numRounds }) => {
     if (code in sessions) {
       const session = sessions[code];
-      session.start();
-      io.to(code).emit("prompt-phase", { prompt: session.currentRound.prompt });
+      session.start(numRounds);
+      io.to(code).emit("prompt-phase", {
+        prompt: session.currentRound.prompt,
+        currRound: session.round,
+        totalRounds: session.totalRounds,
+      });
     } else {
       io.to(code).emit("start-failure", { message: "Session not found" });
       console.log(`urm FAKE CODE ALERT wtf is ${code}`);
@@ -257,6 +263,7 @@ io.on("connection", (socket) => {
       } else {
         io.to(code).emit("prompt-phase", {
           prompt: session.currentRound.prompt,
+          currRound: session.round,
         });
       }
     }

@@ -1,0 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rock+3D&display=swap");
+
+:root {
+  /* Font Families */
+  --font-primary: "Sniglet", cursive;
+  --font-rock: "Rock 3D", cursive;
+
+  /* Font Sizes */
+  --text-xxs: 15px;
+  --text-xs: 25px;
+  --text-sm: 35px;
+  --text-md: 40px;
+  --text-lg: 50px;
+  --text-xl: 60px;
+  --text-xxl: 80px;
+  --text-xxxl: 100px;
+  --text-xxxxl: 120px;
+  --text-ml: 140px; /* ml for mega large*/
+
+  /* Font Weights */
+  --font-regular: 400;
+  --font-extrabold: 800;
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+}

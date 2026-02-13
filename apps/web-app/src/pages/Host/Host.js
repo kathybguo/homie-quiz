@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { GAME_STATES } from "@hq/utils";
 import RevealPhase from "./Reveal/RevealPhase.js";
 import ScoresPhase from "./Scores/ScoresPhase.js";
+import WaitingRoom from "./Waiting/WaitingRoom.js";
+import PromptPhase from "./Prompt/PromptPhase.js";
+import LabelPhase from "./Label/LabelPhase.js";
+import GameOver from "./GameOver/GamerOver.js";
 
 export default function Host() {
   const { code } = useParams();
@@ -14,6 +18,9 @@ export default function Host() {
   const [allAnswers, setAllAnswers] = useState({}); // prompt answers
   const [allLabels, setAllLabels] = useState({});
   const [playerScores, setPlayerScores] = useState({});
+  const [currRound, setCurrRound] = useState(0);
+  const [totalRounds, setTotalRounds] = useState(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +37,10 @@ export default function Host() {
     socket.on("prompt-phase", (response) => {
       setPrompt(response.prompt);
       setGameState(GAME_STATES.PROMPTING);
+      setCurrRound(response.currRound);
+      if (response.totalRounds) {
+        setTotalRounds(response.totalRounds);
+      }
     });
 
     socket.on("labeling-phase", (response) => {
@@ -71,6 +82,8 @@ export default function Host() {
       setPlayerScores(response.playerScores);
       setPrompt(response.round?.prompt);
       setResponsesReceived(response.numResponses);
+      setCurrRound(response.currRound);
+      setTotalRounds(response.totalRounds);
     });
 
     socket.on("new-game", (response) => {
@@ -92,8 +105,8 @@ export default function Host() {
     };
   }, [code, navigate]);
 
-  const startGame = () => {
-    socket.emit("start-game", { code: code });
+  const startGame = (numRounds) => {
+    socket.emit("start-game", { code: code, numRounds: numRounds });
   };
 
   const finishedReveal = () => {
@@ -116,51 +129,31 @@ export default function Host() {
 
   if (gameState === GAME_STATES.WAITING) {
     return (
-      <div>
-        <h1>Lobby</h1>
-        <h2>Join at www.friendquiz.com</h2>
-        <h2>Session Code: {code}</h2>
-
-        {numPlayers > 0 ? (
-          <h2>Players:</h2>
-        ) : (
-          <p>waiting for players to join...</p>
-        )}
-        <ul>
-          {playerNames.map((playerName) => (
-            <li key={playerName}>{playerName}</li>
-          ))}
-        </ul>
-
-        {numPlayers >= 1 && <button onClick={startGame}>Start Game</button>}
-      </div>
+      <WaitingRoom
+        code={code}
+        playerNames={playerNames}
+        onStartGame={startGame}
+      />
     );
   }
 
   if (gameState === GAME_STATES.PROMPTING) {
     return (
-      <div>
-        <h1>{prompt}</h1>
-        <h3>
-          {responsesReceived}/{numPlayers} responses
-        </h3>
-      </div>
+      <PromptPhase
+        prompt={prompt}
+        responsesReceived={responsesReceived}
+        numPlayers={numPlayers}
+      ></PromptPhase>
     );
   }
 
   if (gameState === GAME_STATES.LABELING) {
     return (
-      <div>
-        <h1>Labeling Phase</h1>
-        {Object.values(allAnswers).map((answer, index) => (
-          <div key={index}>
-            <p>{answer}</p>
-          </div>
-        ))}
-        <h3>
-          {responsesReceived}/{numPlayers} responses
-        </h3>
-      </div>
+      <LabelPhase
+        allAnswers={allAnswers}
+        responsesReceived={responsesReceived}
+        numPlayers={numPlayers}
+      ></LabelPhase>
     );
   }
 
@@ -179,17 +172,19 @@ export default function Host() {
       <ScoresPhase
         playerScores={playerScores}
         onComplete={finishedScores}
+        currRound={currRound}
+        totalRound={totalRounds}
       ></ScoresPhase>
     );
   }
 
   if (gameState === GAME_STATES.GAME_OVER) {
     return (
-      <div>
-        <h1>Game Over</h1>
-        <button onClick={playAgain}>play again?</button>
-        <button onClick={endGame}>finished</button>
-      </div>
+      <GameOver
+        playerScores={playerScores}
+        playAgain={playAgain}
+        endGame={endGame}
+      ></GameOver>
     );
   } else {
     console.log(`clearly game state is ${gameState}`);
