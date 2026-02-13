@@ -24,10 +24,6 @@ const PORT = process.env.PORT || 2000;
 
 const sessions = {};
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
 io.on("connection", (socket) => {
   console.log("a user connected");
 
