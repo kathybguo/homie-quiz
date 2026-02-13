@@ -20,7 +20,7 @@ export const PROMPTS = [
   "What do you bring to a potluck?",
   "What is your biggest weakness?",
   "Describe the last picture in your camera roll",
-  "What are you getting for your first plate at the buffet",
+  "What are you getting for your first plate at the buffet?",
   "When did you go to bed yesterday?",
   "When did you wake up today?",
   "What was your phone's screen time yesterday?",
@@ -34,6 +34,7 @@ export const PROMPTS = [
   "How many times have you moved in your life?",
   "How many people have you kissed?",
   "How many contacts are in your phone?",
+  "What is the lowest grade you have ever gotten?",
 ];
 
 //   "Most recently liked Instagram post link",
