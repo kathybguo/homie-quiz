@@ -11,13 +11,15 @@
   display: grid;
   grid-template-columns: repeat(var(--grid-columns), 1fr);
   gap: var(--space-lg);
-  max-width: 90vw;
+  width: 90vw;
 }
 
 .answerCard {
   background-color: var(--card-color);
   border-radius: var(--radius-lg);
   aspect-ratio: 1 / 1;
+
+  max-width: min(100%, 40vh);
   width: 100%;
 
   display: flex;
@@ -26,8 +28,8 @@
   position: relative;
   box-shadow: var(--effect-shadow);
   transition: transform 0.2s ease;
+  justify-self: center; /* Center in grid cell */
 }
-
 .answerCard:hover {
   transform: translateY(-4px);
   box-shadow: var(--effect-shadow);
