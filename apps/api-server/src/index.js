@@ -19,7 +19,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:3000",
       "https://localhost:3000",
-      "https://homie-quiz-frontend.onrender.com/",
+      "https://homie-quiz-frontend.onrender.com",
     ],
     methods: ["GET", "POST"],
   },
