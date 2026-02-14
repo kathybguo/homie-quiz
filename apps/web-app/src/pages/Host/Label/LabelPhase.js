@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import styles from "./LabelPhase.module.css";
+import { shuffleArray } from "@hq/utils";
 
 export default function LabelPhase({
   allAnswers,
   responsesReceived,
   numPlayers,
 }) {
-  const answers = Object.values(allAnswers);
+  const answers = shuffleArray(Object.values(allAnswers));
   const totalAnswers = answers.length;
 
   // Determine grid layout

@@ -4,6 +4,7 @@ import { socket } from "../../../socket.js";
 import { useState } from "react";
 import Button from "../../../components/Button/Button.jsx";
 import styles from "./LabelPhase.module.css";
+import { shuffleArray } from "@hq/utils";
 
 export default function LabelingPhase({
   allAnswers,
@@ -87,8 +88,8 @@ export default function LabelingPhase({
       />
 
       <PlayerSelector
-        playerNames={filteredNames}
-        availablePlayerNames={availablePlayerNames}
+        playerNames={shuffleArray(filteredNames)}
+        availablePlayerNames={shuffleArray(availablePlayerNames)}
         selectedPlayerName={labelAssignments[currentAnswerId]}
         onTogglePlayer={handleTogglePlayer}
       />
