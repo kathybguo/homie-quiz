@@ -7,7 +7,7 @@ export default function LabelPhase({
   responsesReceived,
   numPlayers,
 }) {
-  const answers = shuffleArray(Object.values(allAnswers));
+  const [answers] = useState(() => shuffleArray(Object.values(allAnswers)));
   const totalAnswers = answers.length;
 
   // Determine grid layout

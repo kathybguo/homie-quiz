@@ -12,23 +12,31 @@ export default function LabelingPhase({
   onSubmitComplete,
   name,
 }) {
-  // Derive player names from allAnswers keys
-  const allPlayerNames = Object.keys(allAnswers);
-
-  // Filter out current user's answer and name
-  const filteredAnswers = Object.fromEntries(
-    Object.entries(allAnswers).filter(([playerName]) => playerName !== name),
+  // Create filtered answers once on mount
+  const [filteredAnswers] = useState(() =>
+    Object.fromEntries(
+      Object.entries(allAnswers).filter(([playerName]) => playerName !== name),
+    ),
   );
-  const filteredNames = allPlayerNames.filter(
-    (playerName) => playerName !== name,
+
+  // Shuffle player names once
+  const [allPlayerNames] = useState(() =>
+    shuffleArray(Object.keys(allAnswers)),
+  );
+
+  const [filteredNames] = useState(() =>
+    shuffleArray(allPlayerNames.filter((playerName) => playerName !== name)),
   );
 
   // State managed here
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [labelAssignments, setLabelAssignments] = useState({});
-  // labelAssignments = { answerAuthorName: guessedPlayerName }
 
-  const answerIds = Object.keys(filteredAnswers);
+  // Shuffle the answer IDs once from the stable filteredAnswers
+  const [answerIds] = useState(() =>
+    shuffleArray(Object.keys(filteredAnswers)),
+  );
+
   const currentAnswerId = answerIds[currentCardIndex];
 
   // Derive which labels are used
@@ -88,8 +96,8 @@ export default function LabelingPhase({
       />
 
       <PlayerSelector
-        playerNames={shuffleArray(filteredNames)}
-        availablePlayerNames={shuffleArray(availablePlayerNames)}
+        playerNames={filteredNames}
+        availablePlayerNames={availablePlayerNames}
         selectedPlayerName={labelAssignments[currentAnswerId]}
         onTogglePlayer={handleTogglePlayer}
       />
