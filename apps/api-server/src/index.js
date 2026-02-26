@@ -183,7 +183,6 @@ io.on("connection", (socket) => {
         numResponses: Object.keys(round.answers).length,
       });
       if (session.numPlayers == Object.keys(round.answers).length) {
-        // all players have submitted answers
         session.state = GAME_STATES.LABELING;
         io.to(code).emit("labeling-phase", {
           answers: round.answers,
