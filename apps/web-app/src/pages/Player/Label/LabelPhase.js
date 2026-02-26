@@ -4,7 +4,7 @@ import { socket } from "../../../socket.js";
 import { useState } from "react";
 import Button from "../../../components/Button/Button.jsx";
 import styles from "./LabelPhase.module.css";
-import { shuffleArray } from "@hq/utils";
+import { jsx } from "react/jsx-runtime";
 
 export default function LabelingPhase({
   allAnswers,
@@ -12,68 +12,55 @@ export default function LabelingPhase({
   onSubmitComplete,
   name,
 }) {
-  // Create filtered answers once on mount
-  const [filteredAnswers] = useState(() =>
-    Object.fromEntries(
-      Object.entries(allAnswers).filter(([playerName]) => playerName !== name),
-    ),
+  const answerEntries = Object.entries(allAnswers).filter(
+    ([playerName]) => playerName !== name,
   );
 
-  // Shuffle player names once
-  const [allPlayerNames] = useState(() =>
-    shuffleArray(Object.keys(allAnswers)),
-  );
+  const sortedAnswerTexts = answerEntries.map(([_, answer]) => answer).sort();
 
-  const [filteredNames] = useState(() =>
-    shuffleArray(allPlayerNames.filter((playerName) => playerName !== name)),
-  );
+  const playerNamesSorted = Object.keys(allAnswers)
+    .filter((playerName) => playerName !== name)
+    .sort();
 
-  // State managed here
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [labelAssignments, setLabelAssignments] = useState({});
+  console.log(`sorted answers - self ${sortedAnswerTexts}`);
+  console.log(`sorted player names - self ${playerNamesSorted}`);
 
-  // Shuffle the answer IDs once from the stable filteredAnswers
-  const [answerIds] = useState(() =>
-    shuffleArray(Object.keys(filteredAnswers)),
-  );
+  const currentAuthorName = playerNamesSorted[currentCardIndex];
 
-  const currentAnswerId = answerIds[currentCardIndex];
-
-  // Derive which labels are used
   const usedPlayerNames = new Set(Object.values(labelAssignments));
-  const availablePlayerNames = filteredNames.filter(
+  const availablePlayerNames = playerNamesSorted.filter(
     (playerName) => !usedPlayerNames.has(playerName),
   );
 
-  // Handler for carousel navigation
   const handleNext = () => {
-    setCurrentCardIndex((currentCardIndex + 1) % answerIds.length);
+    setCurrentCardIndex((currentCardIndex + 1) % sortedAnswerTexts.length);
   };
 
   const handlePrevious = () => {
     setCurrentCardIndex(
-      (currentCardIndex - 1 + answerIds.length) % answerIds.length,
+      (currentCardIndex - 1 + sortedAnswerTexts.length) %
+        sortedAnswerTexts.length,
     );
   };
 
   const handleTogglePlayer = (playerName) => {
-    if (labelAssignments[currentAnswerId] === playerName) {
-      // Unassign if clicking the same player
+    if (labelAssignments[currentAuthorName] === playerName) {
       const newAssignments = { ...labelAssignments };
-      delete newAssignments[currentAnswerId];
+      delete newAssignments[currentAuthorName];
       setLabelAssignments(newAssignments);
     } else {
-      // Assign this player
       setLabelAssignments({
         ...labelAssignments,
-        [currentAnswerId]: playerName,
+        [currentAuthorName]: playerName,
       });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (Object.keys(labelAssignments).length < answerIds.length) {
+    if (Object.keys(labelAssignments).length < sortedAnswerTexts.length) {
       alert("Please label all answers");
       return;
     }
@@ -88,17 +75,15 @@ export default function LabelingPhase({
   return (
     <div className={styles.container}>
       <AnswerCarousel
-        currentAnswer={filteredAnswers[currentAnswerId]}
-        currentIndex={currentCardIndex}
-        totalAnswers={answerIds.length}
+        currentAnswer={sortedAnswerTexts[currentCardIndex]}
         onNext={handleNext}
         onPrevious={handlePrevious}
       />
 
       <PlayerSelector
-        playerNames={filteredNames}
+        playerNames={playerNamesSorted}
         availablePlayerNames={availablePlayerNames}
-        selectedPlayerName={labelAssignments[currentAnswerId]}
+        selectedPlayerName={labelAssignments[currentAuthorName]}
         onTogglePlayer={handleTogglePlayer}
       />
 
@@ -107,11 +92,13 @@ export default function LabelingPhase({
           variant="primary"
           size="s"
           onClick={handleSubmit}
-          disabled={Object.keys(labelAssignments).length < answerIds.length}
+          disabled={
+            Object.keys(labelAssignments).length < sortedAnswerTexts.length
+          }
         >
           submit
         </Button>
-        {Object.keys(labelAssignments).length} / {answerIds.length}
+        {Object.keys(labelAssignments).length} / {sortedAnswerTexts.length}
       </div>
     </div>
   );

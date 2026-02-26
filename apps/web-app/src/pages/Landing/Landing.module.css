@@ -70,11 +70,17 @@
     flex-direction: column;
   }
 
-  .halfButton {
+  /* Slight overlap at the center */
+  .halfButton.left {
+    justify-content: center;
+    padding-right: 0;
+    margin-bottom: -1px; /* tiny overlap fixes blur artifact */
+  }
+
+  .halfButton.right {
     justify-content: center;
     padding-left: 0;
-    padding-right: 0;
-    margin: 0; /* remove overlap in vertical layout */
+    margin-top: -1px; /* tiny overlap fixes blur artifact */
   }
 
   .buttonText {

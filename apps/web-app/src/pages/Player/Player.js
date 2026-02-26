@@ -90,13 +90,6 @@ export default function Player() {
     setGameState(GAME_STATES.WAITING);
   };
 
-  const getRankSuffix = (rank) => {
-    if (rank === 1) return "st";
-    if (rank === 2) return "nd";
-    if (rank === 3) return "rd";
-    return "th";
-  };
-
   if (gameState === GAME_STATES.PROMPTING) {
     return (
       <PromptPhase
@@ -110,6 +103,7 @@ export default function Player() {
       <LabelPhase
         allAnswers={allAnswers}
         sessionCode={code}
+        playerNames={playerNames}
         onSubmitComplete={handleSubmitComplete}
         name={name}
       />

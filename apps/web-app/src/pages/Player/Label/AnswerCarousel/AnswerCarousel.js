@@ -2,13 +2,7 @@ import { useSwipeable } from "react-swipeable";
 import Button from "../../../../components/Button/Button.jsx";
 import styles from "./AnswerCarousel.module.css";
 
-export default function AnswerCarousel({
-  currentAnswer,
-  currentIndex,
-  totalAnswers,
-  onNext,
-  onPrevious,
-}) {
+export default function AnswerCarousel({ currentAnswer, onNext, onPrevious }) {
   const handlers = useSwipeable({
     onSwipedLeft: () => onNext(),
     onSwipedRight: () => onPrevious(),
